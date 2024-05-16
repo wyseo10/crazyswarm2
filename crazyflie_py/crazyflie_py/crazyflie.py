@@ -109,10 +109,11 @@ class Crazyflie:
             paramTypeDict: dictionary of the parameter types.
 
         """
-        prefix = cfname
+        namespace = '/' + cfname 
+        prefix = namespace + '/' + cfname
         self.prefix = prefix
         self.node = node
-
+        
         # self.tf = tf
 
         # rospy.wait_for_service(prefix + '/set_group_mask')

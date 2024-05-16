@@ -50,7 +50,7 @@ class SwarmManager():
         enabled = [name for name in self.cfg["robots"].keys() if self.cfg["robots"][name]["enabled"] == True]
 
         print("Waiting for the cfserver (ros2 launch crazyflie launch.py)")
-        swarm = Crazyswarm(enabled)
+        swarm = Crazyswarm(enabled, ns)
         self.timeHelper = swarm.timeHelper
         self.allcfs = swarm.allcfs
         print("Connected to the cfserver")
@@ -297,7 +297,7 @@ def main():
     parser.add_argument(
 	    "--configpath",
 	    type=str,
-	    default=os.path.join(os.path.dirname(os.path.realpath(__file__)), "../../crazyflie/config/allcrazyflies.yaml"),
+	    default=os.path.join(os.path.dirname(os.path.realpath(__file__)), "../../crazyflie/config/crazyflies.yaml"),
 	    help="Path to the configuration .yaml file")
     args = parser.parse_args()
 

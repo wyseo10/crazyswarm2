@@ -10,8 +10,7 @@ from launch.substitutions import LaunchConfiguration, PythonExpression
 
 
 def generate_launch_description():
-    ns = 'com1'
-    # ns = ''
+    ns = 'cf1'
 
     # load crazyflies
     crazyflies_yaml = os.path.join(

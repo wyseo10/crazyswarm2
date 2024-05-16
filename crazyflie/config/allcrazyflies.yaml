@@ -1,0 +1,12 @@
+# named list of all robots
+robots:
+  cf1:
+    enabled: true
+    uri: radio://0/10/2M/E7E7E7E701
+    initial_position: [0.0, 0.0, 0.0]
+    type: cf21  # see robot_types
+  cf2:
+    enabled: true
+    uri: radio://0/20/2M/E7E7E7E702
+    initial_position: [0.0, 1.0, 0.0]
+    type: cf21  # see robot_types
