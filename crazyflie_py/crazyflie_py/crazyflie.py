@@ -111,9 +111,10 @@ class Crazyflie:
         """
         namespace = '/' + cfname 
         prefix = namespace + '/' + cfname
+        self.namespace = namespace
         self.prefix = prefix
         self.node = node
-        
+
         # self.tf = tf
 
         # rospy.wait_for_service(prefix + '/set_group_mask')
@@ -138,11 +139,11 @@ class Crazyflie:
             NotifySetpointsStop, prefix + '/notify_setpoints_stop')
         self.notifySetpointsStopService.wait_for_service()
         self.setParamsService = node.create_client(
-            SetParameters, 'crazyflie_server/set_parameters')
+            SetParameters, namespace + '/crazyflie_server/set_parameters')
         self.setParamsService.wait_for_service()
 
         # Query some settings
-        getParamsService = node.create_client(GetParameters, 'crazyflie_server/get_parameters')
+        getParamsService = node.create_client(GetParameters, namespace + '/crazyflie_server/get_parameters')
         getParamsService.wait_for_service()
         req = GetParameters.Request()
         req.names = ['robots.{}.initial_position'.format(cfname), 'robots.{}.uri'.format(cfname)]
@@ -707,6 +708,7 @@ class Crazyflie:
         """
         req = StartPlanning.Request()
         req.status = 1 #GOTOGOAL
+        req.start_time.stamp = self.node.get_clock().now().to_msg()
         self.startPlanningService.call_async(req)
 
 
@@ -716,6 +718,7 @@ class Crazyflie:
         """
         req = StartPlanning.Request()
         req.status = 2 #GOTOSTART
+        req.start_time.stamp = self.node.get_clock().now().to_msg()
         self.startPlanningService.call_async(req)
 
 
@@ -725,6 +728,7 @@ class Crazyflie:
         """
         req = StartPlanning.Request()
         req.status = 3 #PATROL
+        req.start_time.stamp = self.node.get_clock().now().to_msg()
         self.startPlanningService.call_async(req)
 
 
@@ -754,18 +758,18 @@ class CrazyflieServer(rclpy.node.Node):
         """Initialize the server. Waits for all ROS services before returning."""
         super().__init__('CrazyflieAPI', namespace = ns)
         self.emergencyService = self.create_client(Empty, 'all/emergency')
-        self.emergencyService.wait_for_service()
+        #self.emergencyService.wait_for_service()
         self.takeoffService = self.create_client(Takeoff, 'all/takeoff')
-        self.takeoffService.wait_for_service()
+        #self.takeoffService.wait_for_service()
         self.landService = self.create_client(Land, 'all/land')
-        self.landService.wait_for_service()
+        #self.landService.wait_for_service()
         self.goToService = self.create_client(GoTo, 'all/go_to')
-        self.goToService.wait_for_service()
+        #self.goToService.wait_for_service()
         self.startTrajectoryService = self.create_client(StartTrajectory, 'all/start_trajectory')
-        self.startTrajectoryService.wait_for_service()
+        #self.startTrajectoryService.wait_for_service()
         self.setParamsService = self.create_client(
             SetParameters, 'crazyflie_server/set_parameters')
-        self.setParamsService.wait_for_service()
+        #self.setParamsService.wait_for_service()
 
         self.cmdFullStatePublisher = self.create_publisher(
             FullState, 'all/cmd_full_state', 1)
@@ -781,7 +785,7 @@ class CrazyflieServer(rclpy.node.Node):
         #             cfnames.append(cfname)
 
         # Query all parameters
-        listParamsService = self.create_client(ListParameters, 'crazyflie_server/list_parameters')
+        listParamsService = self.create_client(ListParameters, '/cf1/crazyflie_server/list_parameters')
         listParamsService.wait_for_service()
         req = ListParameters.Request()
         req.depth = ListParameters.Request.DEPTH_RECURSIVE
@@ -800,7 +804,7 @@ class CrazyflieServer(rclpy.node.Node):
 
         # Find the types for the parameters and store them
         describeParametersService = self.create_client(
-            DescribeParameters, 'crazyflie_server/describe_parameters')
+            DescribeParameters, '/cf1/crazyflie_server/describe_parameters')
         describeParametersService.wait_for_service()
         req = DescribeParameters.Request()
         req.names = params
@@ -1015,9 +1019,9 @@ class CrazyflieServer(rclpy.node.Node):
         Initialize services for planning
         """
         self.startPlanningService = self.create_client(StartPlanning, 'all/start_planning')
-        self.startPlanningService.wait_for_service()
+        #self.startPlanningService.wait_for_service()
         self.stopPlanningService = self.create_client(StopPlanning, 'all/stop_planning')
-        self.stopPlanningService.wait_for_service()
+        #self.stopPlanningService.wait_for_service()
 
 
     def goToGoal(self):
@@ -1026,6 +1030,7 @@ class CrazyflieServer(rclpy.node.Node):
         """
         req = StartPlanning.Request()
         req.status = 1 #GOTOGOAL
+        req.start_time.stamp = self.get_clock().now().to_msg()
         self.startPlanningService.call_async(req)
 
 
@@ -1035,6 +1040,7 @@ class CrazyflieServer(rclpy.node.Node):
         """
         req = StartPlanning.Request()
         req.status = 2 #GOTOSTART
+        req.start_time.stamp = self.get_clock().now().to_msg()
         self.startPlanningService.call_async(req)
 
 
@@ -1044,6 +1050,7 @@ class CrazyflieServer(rclpy.node.Node):
         """
         req = StartPlanning.Request()
         req.status = 3 #PATROL
+        req.start_time.stamp = self.get_clock().now().to_msg()
         self.startPlanningService.call_async(req)
 
 

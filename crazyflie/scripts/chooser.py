@@ -18,7 +18,7 @@ if __name__ == '__main__':
 	parser.add_argument(
 		"--configpath",
 		type=str,
-		default=os.path.join(os.path.dirname(os.path.realpath(__file__)), "../config/crazyflies.yaml"),
+		default=os.path.join(os.path.dirname(os.path.realpath(__file__)), "../config/allcrazyflies.yaml"),
 		help="Path to the configuration .yaml file")
 	parser.add_argument(
 		"--stm32Fw",

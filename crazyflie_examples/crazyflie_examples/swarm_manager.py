@@ -46,7 +46,6 @@ class SwarmManager():
         self.configpath = configpath
         yaml = YAML()
         self.cfg = yaml.load(pathlib.Path(configpath))
-        cfTypes = self.cfg["robot_types"]
         enabled = [name for name in self.cfg["robots"].keys() if self.cfg["robots"][name]["enabled"] == True]
 
         print("Waiting for the cfserver (ros2 launch crazyflie launch.py)")
@@ -101,6 +100,10 @@ class SwarmManager():
         self.mkbutton(scriptButtons, "GoToStart", self.goToStart)
         self.mkbutton(scriptButtons, "Land", self.land)
         self.mkbutton(scriptButtons, "Kill", self.emergencyStop)
+
+        print("Waiting for the planner")
+        self.activatePlanner()
+        print("Connected to the planner")
 
         buttons.pack()
         frame.pack(padx=10, pady=10)
@@ -192,7 +195,7 @@ class SwarmManager():
 
 
     def goToGoal(self):
-        self.activatePlanner()
+        # self.activatePlanner()
         cfs = self.selected_cfs()
         for cf in cfs:
             cf.goToGoal()

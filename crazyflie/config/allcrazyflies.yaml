@@ -10,3 +10,25 @@ robots:
     uri: radio://0/20/2M/E7E7E7E702
     initial_position: [0.0, 1.0, 0.0]
     type: cf21  # see robot_types
+# Definition of the various robot types
+robot_types:
+  cf21:
+    motion_capture:
+      enabled: true
+      # only if enabled; see motion_capture.yaml
+      marker: default_single_marker
+      dynamics: default
+    big_quad: false
+    battery:
+      voltage_warning: 3.8  # V
+      voltage_critical: 3.7 # V
+  cf21_mocap_deck:
+    motion_capture:
+      enabled: true
+      # only if enabled; see motion_capture.yaml
+      marker: mocap_deck
+      dynamics: default
+    big_quad: false
+    battery:
+      voltage_warning: 3.8  # V
+      voltage_critical: 3.7 # V
