@@ -3,3 +3,7 @@ crazyswarm2_sim_webots/
 *.pyc
 *.o
 *~
+log3375487317.csv
+params51380503.csv
+tmp_motion_capture.yaml
+tmp_server.yaml
