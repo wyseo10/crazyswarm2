@@ -5,6 +5,13 @@ robots:
     uri: radio://0/10/2M/E7E7E7E701
     initial_position: [0.0, 0.0, 0.0]
     type: cf21  # see robot_types
+    firmware_params:
+      ring:
+        effect: 7 # 6: double spinner, 7: solid color, 16: packetRate
+        solidBlue: 0 # if set to solid color
+        solidGreen: 0 # if set to solid color
+        solidRed: 255 # if set to solid color
+        headlightEnable: 0    
 # Definition of the various robot types
 robot_types:
   cf21:
