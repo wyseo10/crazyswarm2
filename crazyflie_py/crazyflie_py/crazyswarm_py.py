@@ -6,10 +6,10 @@ from .crazyflie import CrazyflieServer, TimeHelper
 
 class Crazyswarm:
 
-    def __init__(self):
+    def __init__(self, cfnames, namespace=''):
         rclpy.init()
 
-        self.allcfs = CrazyflieServer()
+        self.allcfs = CrazyflieServer(cfnames, namespace)
         self.timeHelper = TimeHelper(self.allcfs)
 
         self.input = genericJoystick.Joystick(self.timeHelper)
