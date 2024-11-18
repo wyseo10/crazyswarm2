@@ -14,10 +14,10 @@ def generate_launch_description():
             get_package_share_directory('crazyflie'), 'launch'),
             '/launch.py']),
         launch_arguments={
-            'backend': 'cflib',
-            'gui': 'false',
-            'teleop': 'false',
-            'mocap': 'false',
+            'backend': 'cpp',
+            'gui': 'True',
+            'teleop': 'False',
+            'mocap': 'False',
             }.items())
 
     return LaunchDescription([
@@ -29,6 +29,6 @@ def generate_launch_description():
             output='screen',
             parameters=[{'hover_height': 0.3},
                         {'incoming_twist_topic': '/cmd_vel'},
-                        {'robot_prefix': '/cf231'}]
+                        {'robot_prefix': '/cf6'}]
         ),
     ])
