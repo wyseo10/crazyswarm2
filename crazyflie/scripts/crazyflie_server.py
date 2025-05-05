@@ -239,6 +239,9 @@ class CrazyflieServer(Node):
                                    " or if your script have proper access to a Crazyradio PA")
             exit()
 
+
+    def _init_topics_and_services(self):
+
         for uri in self.cf_dict:
             if uri == "all":
                 continue
@@ -266,6 +269,8 @@ class CrazyflieServer(Node):
                 Takeoff, name +
                 "/takeoff", partial(self._takeoff_callback, uri=uri)
             )
+            self.get_logger().info(f"[{name}] got takeoff service!")
+
             self.create_service(
                 Land, name + "/land", partial(self._land_callback, uri=uri)
             )
@@ -394,7 +399,9 @@ class CrazyflieServer(Node):
         if self.swarm.connected_crazyflie_cnt == len(self.cf_dict) - 1:
             self.time_all_crazyflie_connected = self.get_clock().now().nanoseconds * 1e-9
             self.get_logger().info(f"All Crazyflies are connected! It took {self.time_all_crazyflie_connected - self.time_open_link} seconds")
+            self._init_topics_and_services()
             self._init_logging()
+
             if not self.swarm.query_all_values_on_connect:
                 self._init_parameters()
                 self.add_on_set_parameters_callback(self._parameters_callback)
