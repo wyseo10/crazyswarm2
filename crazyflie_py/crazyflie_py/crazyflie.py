@@ -524,23 +524,26 @@ class Crazyflie:
             value (Any): The parameter's value.
 
         """
-        param_name = self.prefix[1:] + '.params.' + name
-        req = GetParameters.Request()
-        req.names = [param_name]
-        future = self.getParamsService.call_async(req)
-        rclpy.spin_until_future_complete(self.node, future)
-        param_type = self.paramTypeDict[name]
         try:
+            param_name = self.prefix[1:] + '.params.' + name
+            self.node.get_logger().info(f'(crazyflie.py)getParam : trying to get {param_name}')
+            req = GetParameters.Request()
+            req.names = [param_name]
+            future = self.getParamsService.call_async(req)
+            rclpy.spin_until_future_complete(self.node, future)
+            param_type = self.paramTypeDict[name]
             if param_type == ParameterType.PARAMETER_INTEGER:
                 param_value = future.result().values[0].integer_value
             elif param_type == ParameterType.PARAMETER_DOUBLE:
                 param_value = future.result().values[0].double_value
+            return param_value
         except KeyError as e:
-            self.get_logger().warn(f'(crazyflie.py)getParam : keyError raised {e}')
+            self.node.get_logger().warn(f'(crazyflie.py)getParam : keyError raised {e}')
+            return float('nan')
         except Exception as e:
-            self.get_logger().warn(f'(crazyflie.py)getParam : exception raised {e}')
+            self.node.get_logger().warn(f'(crazyflie.py)getParam : exception raised {e}')
+            return float('nan')
 
-        return param_value
 
     def setParam(self, name, value):
         """
@@ -553,15 +556,20 @@ class Crazyflie:
             value (Any): The parameter's value.
 
         """
-        param_name = self.prefix[1:] + '.params.' + name
-        param_type = self.paramTypeDict[name]
-        if param_type == ParameterType.PARAMETER_INTEGER:
-            param_value = ParameterValue(type=param_type, integer_value=int(value))
-        elif param_type == ParameterType.PARAMETER_DOUBLE:
-            param_value = ParameterValue(type=param_type, double_value=float(value))
-        req = SetParameters.Request()
-        req.parameters = [Parameter(name=param_name, value=param_value)]
-        self.setParamsService.call_async(req)
+        try:
+            param_name = self.prefix[1:] + '.params.' + name
+            param_type = self.paramTypeDict[name]
+            if param_type == ParameterType.PARAMETER_INTEGER:
+                param_value = ParameterValue(type=param_type, integer_value=int(value))
+            elif param_type == ParameterType.PARAMETER_DOUBLE:
+                param_value = ParameterValue(type=param_type, double_value=float(value))
+            req = SetParameters.Request()
+            req.parameters = [Parameter(name=param_name, value=param_value)]
+            self.setParamsService.call_async(req)
+        except KeyError as e:
+            self.node.get_logger().warn(f'(crazyflie.py)setParam : keyError raised {e}')
+        except Exception as e:
+            self.node.get_logger().warn(f'(crazyflie.py)setParam : exception raised {e}')
 
     # def setParams(self, params):
     #     """Changes the value of several parameters at once.
