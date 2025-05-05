@@ -239,6 +239,10 @@ class CrazyflieServer(Node):
                                    " or if your script have proper access to a Crazyradio PA")
             exit()
 
+
+    def _init_topics_and_services(self):
+
+        # Create services for the entire swarm and each individual crazyflie
         for uri in self.cf_dict:
             if uri == "all":
                 continue
@@ -311,7 +315,6 @@ class CrazyflieServer(Node):
                 self._poses_changed, qos_profile
             )
 
-        # Create services for the entire swarm and each individual crazyflie
         self.create_service(Arm, "all/arm", self._arm_callback)
         self.create_service(Takeoff, "all/takeoff", self._takeoff_callback)
         self.create_service(Land, "all/land", self._land_callback)
@@ -394,6 +397,7 @@ class CrazyflieServer(Node):
         if self.swarm.connected_crazyflie_cnt == len(self.cf_dict) - 1:
             self.time_all_crazyflie_connected = self.get_clock().now().nanoseconds * 1e-9
             self.get_logger().info(f"All Crazyflies are connected! It took {self.time_all_crazyflie_connected - self.time_open_link} seconds")
+            self._init_topics_and_services()
             self._init_logging()
             if not self.swarm.query_all_values_on_connect:
                 self._init_parameters()
