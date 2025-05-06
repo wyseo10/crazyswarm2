@@ -157,8 +157,9 @@ class CrazyflieServer(Node):
             #link statistics
             self.swarm._cfs[link_uri].status = {}
             self.swarm._cfs[link_uri].status["latency"] = 0.0
-            self.swarm._cfs[link_uri].cf.link_statistics.latency.latency_updated.add_callback(partial(self._latency_callback, uri=link_uri))
-
+            self.swarm._cfs[link_uri].cf.link_statistics.latency_updated.add_callback(partial(self._latency_callback, uri=link_uri))
+            self.swarm._cfs[link_uri].status["num_rx_unicast"] = 0.0
+            self.swarm._cfs[link_uri].cf.link_statistics.uplink_rate_updated.add_callback(partial(self._uplink_rate_callback, uri=link_uri))
 
             self.swarm._cfs[link_uri].logging = {}
 
@@ -400,6 +401,12 @@ class CrazyflieServer(Node):
         Called when the latency of the Crazyflie is updated
         """
         self.swarm._cfs[uri].status["latency"] = latency
+
+    def _uplink_rate_callback(self, uplink_rate, uri=""):
+        """
+        Called when the uplink rate of the Crazyflie is updated
+        """
+        self.swarm._cfs[uri].status["num_rx_unicast"] = uplink_rate
 
     def _connected(self, link_uri):
         """
@@ -685,6 +692,7 @@ class CrazyflieServer(Node):
 
         # From link statistics class
         msg.latency_unicast  = int(self.swarm._cfs[uri].status["latency"])
+        msg.num_rx_unicast = int(self.swarm._cfs[uri].status["num_rx_unicast"])
 
         try:
             self.swarm._cfs[uri].logging["status_publisher"].publish(msg)
