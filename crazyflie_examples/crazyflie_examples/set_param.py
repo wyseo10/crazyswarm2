@@ -1,11 +1,10 @@
 #!/usr/bin/env python
 
 from crazyflie_py import Crazyswarm
-import time
 
 def main():
-    # allow some time for the Crazyflies to connect and setup parameters
-    time.sleep(22.0)  # wait for the Crazyflies to connect
+    # In case of key errors, wait for all the crazyflies to be fully connected
+    # before running the script. 
     swarm = Crazyswarm()
     timeHelper = swarm.timeHelper
     allcfs = swarm.allcfs
