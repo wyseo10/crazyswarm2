@@ -155,7 +155,10 @@ class CrazyflieServer(Node):
                 self._connection_failed
             )
             #link statistics
-            self.swarm._cfs[link_uri].cf.link_statistics.latency.latency_updated.add_callback(self._latency_callback)
+            self.swarm._cfs[link_uri].status = {}
+            self.swarm._cfs[link_uri].status["latency"] = 0.0
+            self.swarm._cfs[link_uri].cf.link_statistics.latency.latency_updated.add_callback(partial(self._latency_callback, uri=link_uri))
+
 
             self.swarm._cfs[link_uri].logging = {}
 
@@ -392,14 +395,11 @@ class CrazyflieServer(Node):
                     t = t.setdefault(part, {})
         return tree
 
-    def _latency_callback(self, latency):
+    def _latency_callback(self, latency, uri=""):
         """
         Called when the latency of the Crazyflie is updated
         """
-        self.get_logger().info(f"Latency: {latency}ms")
-
-
-
+        self.swarm._cfs[uri].status["latency"] = latency
 
     def _connected(self, link_uri):
         """
@@ -676,10 +676,15 @@ class CrazyflieServer(Node):
         msg = Status()
         msg.header.stamp = self.get_clock().now().to_msg()
         msg.header.frame_id = self.world_tf_name
+
+        # From logging statistics
         msg.supervisor_info = data.get('supervisor.info')
         msg.battery_voltage = data.get('pm.vbatMV') / 1000.0
         msg.pm_state = data.get('pm.state')
         msg.rssi = data.get('radio.rssi')
+
+        # From link statistics class
+        msg.latency_unicast  = int(self.swarm._cfs[uri].status["latency"])
 
         try:
             self.swarm._cfs[uri].logging["status_publisher"].publish(msg)
