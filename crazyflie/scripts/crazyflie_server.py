@@ -237,9 +237,6 @@ class CrazyflieServer(Node):
                     self.swarm._cfs[link_uri].logging["custom_log_groups"][log_group_name][
                         "frequency"] = custom_log_topics[log_group_name]["frequency"]
 
-
-        
-
         # Now all crazyflies are initialized, open links!
         try:
             self.time_open_link = self.get_clock().now().nanoseconds * 1e-9
@@ -250,9 +247,7 @@ class CrazyflieServer(Node):
             self.get_logger().info("Check if you got the right URIs, if they are turned on" +
                                    " or if your script have proper access to a Crazyradio PA")
             exit()
-
     
-
     def _init_topics_and_services(self):
 
         # Create services for the entire swarm and each individual crazyflie
