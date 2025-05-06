@@ -767,6 +767,17 @@ class CrazyflieServer(Node):
                                 value=cf_param_value,
                                 descriptor=parameter_descriptor,
                                 )
+                            # Based on the parameters from the last Crazyflie, set params for all
+                            # Warning: if any of the other crazyflies have different paramters    this will result in an error
+                            try:
+                                self.declare_parameter(
+                                    "all.params." + group + "." + param,
+                                    value=cf_param_value,
+                                    descriptor=parameter_descriptor,
+                                    )
+                            except Exception as e:
+                                continue
+
 
         self.get_logger().info("All Crazyflies parameters are initialized.")
 

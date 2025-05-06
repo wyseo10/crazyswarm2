@@ -1,13 +1,14 @@
 #!/usr/bin/env python
 
 from crazyflie_py import Crazyswarm
-
+import time
 
 def main():
+    # allow some time for the Crazyflies to connect and setup parameters
+    time.sleep(22.0)  # wait for the Crazyflies to connect
     swarm = Crazyswarm()
     timeHelper = swarm.timeHelper
     allcfs = swarm.allcfs
-    timeHelper.sleep(5.0)
 
     # disable LED (one by one)
     for cf in allcfs.crazyflies:
