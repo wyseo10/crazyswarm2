@@ -154,6 +154,8 @@ class CrazyflieServer(Node):
             self.swarm._cfs[link_uri].cf.connection_failed.add_callback(
                 self._connection_failed
             )
+            #link statistics
+            self.swarm._cfs[link_uri].cf.link_statistics.latency.latency_updated.add_callback(self._latency_callback)
 
             self.swarm._cfs[link_uri].logging = {}
 
@@ -228,6 +230,9 @@ class CrazyflieServer(Node):
                     self.swarm._cfs[link_uri].logging["custom_log_groups"][log_group_name][
                         "frequency"] = custom_log_topics[log_group_name]["frequency"]
 
+
+        
+
         # Now all crazyflies are initialized, open links!
         try:
             self.time_open_link = self.get_clock().now().nanoseconds * 1e-9
@@ -239,6 +244,7 @@ class CrazyflieServer(Node):
                                    " or if your script have proper access to a Crazyradio PA")
             exit()
 
+    
 
     def _init_topics_and_services(self):
 
@@ -385,6 +391,15 @@ class CrazyflieServer(Node):
                 else:
                     t = t.setdefault(part, {})
         return tree
+
+    def _latency_callback(self, latency):
+        """
+        Called when the latency of the Crazyflie is updated
+        """
+        self.get_logger().info(f"Latency: {latency}ms")
+
+
+
 
     def _connected(self, link_uri):
         """
