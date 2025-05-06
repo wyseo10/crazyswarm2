@@ -543,7 +543,6 @@ class Crazyflie:
             self.node.get_logger().warn(f'(crazyflie.py)getParam : exception raised {e}')
             return float('nan')
 
-
     def setParam(self, name, value):
         """
         Change the value of the given parameter.

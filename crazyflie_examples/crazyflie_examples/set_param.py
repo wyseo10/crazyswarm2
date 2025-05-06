@@ -2,9 +2,10 @@
 
 from crazyflie_py import Crazyswarm
 
+
 def main():
     # In case of key errors, wait for all the crazyflies to be fully connected
-    # before running the script. 
+    # before running the script.
     # Also 'query_all_values_on_connect' should be set to True in the server.yaml file.
     swarm = Crazyswarm()
     timeHelper = swarm.timeHelper
