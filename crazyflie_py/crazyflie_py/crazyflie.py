@@ -526,7 +526,6 @@ class Crazyflie:
         """
         try:
             param_name = self.prefix[1:] + '.params.' + name
-            self.node.get_logger().info(f'(crazyflie.py)getParam : trying to get {param_name}')
             req = GetParameters.Request()
             req.names = [param_name]
             future = self.getParamsService.call_async(req)
