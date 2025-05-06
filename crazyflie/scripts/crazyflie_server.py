@@ -155,7 +155,7 @@ class CrazyflieServer(Node):
                 self._connection_failed
             )
 
-            # link statistics from Cflib
+            # link statistics from CFlib
             self.swarm._cfs[link_uri].status = {}
             self.swarm._cfs[link_uri].status["latency"] = 0.0
             self.swarm._cfs[link_uri].cf.link_statistics.latency_updated.add_callback(partial(self._latency_callback, uri=link_uri))
@@ -164,12 +164,12 @@ class CrazyflieServer(Node):
             self.swarm._cfs[link_uri].status["num_tx_unicast"] = 0.0
             self.swarm._cfs[link_uri].cf.link_statistics.downlink_rate_updated.add_callback(partial(self._downlink_rate_callback, uri=link_uri))
 
+            # check if logging is enabled at startup
             self.swarm._cfs[link_uri].logging = {}
 
             cf_name = self.cf_dict[link_uri]
             cf_type = self.type_dict[link_uri]
 
-            # check if logging is enabled at startup
             logging_enabled = False
             try:
                 logging_enabled = self._ros_parameters['all']["firmware_logging"]["enabled"]
@@ -413,7 +413,7 @@ class CrazyflieServer(Node):
 
     def _downlink_rate_callback(self, downlink_rate, uri=""):
         """
-        Called when the downlink rate of the Crazyflie is updated
+        Called when the uplink rate of the Crazyflie is updated
         """
         self.swarm._cfs[uri].status["num_tx_unicast"] = downlink_rate
 
