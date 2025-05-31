@@ -236,6 +236,15 @@ public:
       }
     };
 
+    auto update_value = [&parameter_overrides](rclcpp::ParameterValue& value, const std::string& pattern)
+    {
+      for (const auto &i : parameter_overrides) {
+        if (i.first.find(pattern) == 0) {
+          value = i.second;
+        }
+      }
+    };
+
     if (enable_parameters) {
       bool query_all_values_on_connect = node->get_parameter("firmware_params.query_all_values_on_connect").get_parameter_value().get<bool>();
 
@@ -336,6 +345,28 @@ public:
         std::string paramName = name + ".params." + std::regex_replace(i.first, std::regex("\\."), ".");
         change_parameter(rclcpp::Parameter(paramName, i.second));
       }
+    }
+
+    // Reference Frame
+    {
+      rclcpp::ParameterValue reference_frame_value("world");
+
+      // Get logging configuration as specified in the configuration files, as in the following order
+      // 1.) check all/reference_frame
+      // 2.) check robot_types/<type_name>/reference_frame
+      // 3.) check robots/<robot_name>/reference_frame
+      // where the higher order is used if defined on multiple levels.
+      update_value(reference_frame_value, "all.reference_frame");
+      // check robot_types/<type_name>/reference_frame
+      update_value(reference_frame_value, "robot_types." + cf_type + ".reference_frame");
+      // check robots/<robot_name>/reference_frame
+      update_value(reference_frame_value, "robots." + name_ + ".reference_frame");
+
+      // extract reference frame 
+      reference_frame_ = reference_frame_value.get<std::string>();
+     
+      RCLCPP_INFO(logger_, "[%s] ref frame: %s", name_.c_str(), reference_frame_.c_str());
+      
     }
 
     // Logging
@@ -728,7 +759,7 @@ private:
     if (publisher_pose_) {
       geometry_msgs::msg::PoseStamped msg;
       msg.header.stamp = node_->get_clock()->now();
-      msg.header.frame_id = "world";
+      msg.header.frame_id = reference_frame_;
 
       msg.pose.position.x = data->x;
       msg.pose.position.y = data->y;
@@ -862,7 +893,7 @@ private:
 
     crazyflie_interfaces::msg::LogDataGeneric msg;
     msg.header.stamp = node_->get_clock()->now();
-    msg.header.frame_id = "world";
+    msg.header.frame_id = reference_frame_;
     msg.timestamp = time_in_ms;
     msg.values = *values;
 
@@ -891,7 +922,7 @@ private:
     if (publish_stats_) {
       crazyflie_interfaces::msg::ConnectionStatisticsArray msg;
       msg.header.stamp = node_->get_clock()->now();
-      msg.header.frame_id = "world";
+      msg.header.frame_id = reference_frame_;
       msg.stats.resize(1);
 
       msg.stats[0].uri = cf_.uri();
@@ -941,6 +972,8 @@ private:
   rclcpp::Publisher<std_msgs::msg::String>::SharedPtr publisher_robot_description_;
 
   // logging
+  std::string reference_frame_;
+
   std::unique_ptr<LogBlock<logPose>> log_block_pose_;
   rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr publisher_pose_;
 
@@ -1420,7 +1453,7 @@ private:
 
       crazyflie_interfaces::msg::ConnectionStatisticsArray msg;
       msg.header.stamp = this->get_clock()->now();
-      msg.header.frame_id = "world";
+      msg.header.frame_id = "world"; // this is across broadcasters, which is not directly associated with single CFs; hence keep "world" here
       msg.stats.resize(broadcaster_.size());
 
       size_t i = 0;
