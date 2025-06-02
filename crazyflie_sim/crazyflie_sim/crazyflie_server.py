@@ -78,9 +78,6 @@ class CrazyflieServer(Node):
                         reference_frame =self._ros_parameters['robots'][cfname]["reference_frame"]
                     except KeyError:
                         pass
-                    self.get_logger().info(
-                        f'[{cfname}] reference frame: {reference_frame}'
-                    )
                     reference_frames.append(reference_frame)
 
         # initialize backend by dynamically loading the module

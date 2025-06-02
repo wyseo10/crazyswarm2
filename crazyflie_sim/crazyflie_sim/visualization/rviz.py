@@ -16,7 +16,6 @@ class Visualization:
         self.node = node
         self.names = names
         self.reference_frames = reference_frames 
-        print(f"Visualization: {self.names} with reference frames {self.reference_frames}")
         self.tfbr = TransformBroadcaster(self.node)
 
     def step(self, t, states: list[State], states_desired: list[State], actions: list[Action]):
