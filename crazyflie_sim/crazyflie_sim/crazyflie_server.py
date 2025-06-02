@@ -40,16 +40,20 @@ class CrazyflieServer(Node):
         self._ros_parameters = self._param_to_dict(self._parameters)
         self.cfs = {}
 
-        self.world_tf_name = 'world'
+        world_tf_name = 'world'
+        robot_yaml_version = 0
+
         try:
-            self.world_tf_name = self._ros_parameters['world_tf_name']
+            robot_yaml_version = self._ros_parameters["fileversion"]
         except KeyError:
-            pass
+            self.get_logger().info("No fileversion found in crazyflies.yaml, assuming version 0")
+
         robot_data = self._ros_parameters['robots']
 
         # Parse robots
         names = []
         initial_states = []
+        reference_frames = []
         for cfname in robot_data:
             if robot_data[cfname]['enabled']:
                 type_cf = robot_data[cfname]['type']
@@ -60,6 +64,24 @@ class CrazyflieServer(Node):
                     names.append(cfname)
                     pos = robot_data[cfname]['initial_position']
                     initial_states.append(State(pos))
+                # Get the current reference frame for the robot
+                    reference_frame = world_tf_name
+                    try:
+                        reference_frame =self._ros_parameters['all']["reference_frame"]
+                    except KeyError:
+                        pass
+                    try: 
+                        reference_frame =self._ros_parameters['robot_types'][robot_data[cfname]['type']]["reference_frame"]
+                    except KeyError:
+                        pass
+                    try:
+                        reference_frame =self._ros_parameters['robots'][cfname]["reference_frame"]
+                    except KeyError:
+                        pass
+                    self.get_logger().info(
+                        f'[{cfname}] reference frame: {reference_frame}'
+                    )
+                    reference_frames.append(reference_frame)
 
         # initialize backend by dynamically loading the module
         backend_name = self._ros_parameters['sim']['backend']
@@ -75,10 +97,18 @@ class CrazyflieServer(Node):
                                                  str(vis_key),
                                                  package='crazyflie_sim')
                 class_ = getattr(module, 'Visualization')
-                vis = class_(self,
-                             self._ros_parameters['sim']['visualizations'][vis_key],
-                             names,
-                             initial_states)
+                if vis_key == 'rviz':
+                    # special case for rviz, which needs the reference frames
+                    vis = class_(self,
+                                 self._ros_parameters['sim']['visualizations'][vis_key],
+                                 names,
+                                 initial_states,
+                                 reference_frames)
+                else:
+                    vis = class_(self,
+                                self._ros_parameters['sim']['visualizations'][vis_key],
+                                names,
+                                initial_states)
                 self.visualizations.append(vis)
 
         controller_name = backend_name = self._ros_parameters['sim']['controller']
