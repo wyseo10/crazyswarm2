@@ -108,11 +108,15 @@ class CrazyflieServer(Node):
                                 "odom": self._log_odom_data_callback,
                                 "status": self._log_status_data_callback}
 
-        self.world_tf_name = "map"
+        world_tf_name = "world"
+        robot_yaml_version = 0
+
         try:
-            self.world_tf_name = self._ros_parameters["world_tf_name"]
+            robot_yaml_version = self._ros_parameters["fileversion"]
         except KeyError:
-            pass
+            self.get_logger().info("No fileversion found in crazyflies.yaml, assuming version 0")
+        
+        # Check if the Crazyflie library is initialized
         robot_data = self._ros_parameters["robots"]
 
         # Init a transform broadcaster
@@ -236,6 +240,23 @@ class CrazyflieServer(Node):
                     self.swarm._cfs[link_uri].logging["custom_log_groups"][log_group_name]["vars"] = custom_log_topics[log_group_name]["vars"]
                     self.swarm._cfs[link_uri].logging["custom_log_groups"][log_group_name][
                         "frequency"] = custom_log_topics[log_group_name]["frequency"]
+
+            reference_frame = world_tf_name
+               # if larger then 3, then the reference frame is not set in the yaml file
+            if robot_yaml_version >= 3: 
+                try:
+                    reference_frame =self._ros_parameters['all']["reference_frame"]
+                except KeyError:
+                    pass
+                try:
+                    reference_frame =self._ros_parameters['robot_types'][robot_data[cf_name]['type']]["reference_frame"]
+                except KeyError:
+                    pass
+                try:
+                    reference_frame =self._ros_parameters['robots'][cf_name]["reference_frame"]
+                except KeyError:
+                    pass
+            self.swarm._cfs[link_uri].reference_frame = reference_frame
 
         # Now all crazyflies are initialized, open links!
         try:
@@ -587,7 +608,7 @@ class CrazyflieServer(Node):
 
         msg = PoseStamped()
         msg.header.stamp = self.get_clock().now().to_msg()
-        msg.header.frame_id = self.world_tf_name
+        msg.header.frame_id = self.swarm._cfs[uri].reference_frame
         msg.pose.position.x = x
         msg.pose.position.y = y
         msg.pose.position.z = z
@@ -603,7 +624,7 @@ class CrazyflieServer(Node):
 
         t_base = TransformStamped()
         t_base.header.stamp = self.get_clock().now().to_msg()
-        t_base.header.frame_id = self.world_tf_name
+        t_base.header.frame_id = self.swarm._cfs[uri].reference_frame
         t_base.child_frame_id = cf_name
         t_base.transform.translation.x = x
         t_base.transform.translation.y = y
@@ -641,7 +662,7 @@ class CrazyflieServer(Node):
         msg = Odometry()
         msg.child_frame_id = cf_name
         msg.header.stamp = self.get_clock().now().to_msg()
-        msg.header.frame_id = self.world_tf_name
+        msg.header.frame_id = self.swarm._cfs[uri].reference_frame
         msg.pose.pose.position.x = x
         msg.pose.pose.position.y = y
         msg.pose.pose.position.z = z
@@ -664,7 +685,7 @@ class CrazyflieServer(Node):
 
         t_base = TransformStamped()
         t_base.header.stamp = self.get_clock().now().to_msg()
-        t_base.header.frame_id = cf_name +'/odom'
+        t_base.header.frame_id = self.swarm._cfs[uri].reference_frame
         t_base.child_frame_id = cf_name
         t_base.transform.translation.x = x
         t_base.transform.translation.y = y
@@ -686,7 +707,7 @@ class CrazyflieServer(Node):
 
         msg = Status()
         msg.header.stamp = self.get_clock().now().to_msg()
-        msg.header.frame_id = self.world_tf_name
+        msg.header.frame_id = self.swarm._cfs[uri].reference_frame
 
         # From logging statistics
         msg.supervisor_info = data.get('supervisor.info')
