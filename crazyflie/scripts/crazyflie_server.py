@@ -109,9 +109,11 @@ class CrazyflieServer(Node):
                                 "status": self._log_status_data_callback}
 
         world_tf_name = "world"
-        robot_yaml_version = self._ros_parameters["fileversion"]
-        if robot_yaml_version < 3:
-            world_tf_name = self._ros_parameters["world_tf_name"]
+        try:
+            robot_yaml_version = self._ros_parameters["fileversion"]
+        except KeyError:
+            self.get_logger().info("No fileversion found in crazyflies.yaml, assuming version 0")
+            robot_yaml_version = 0
         
         # Check if the Crazyflie library is initialized
         robot_data = self._ros_parameters["robots"]
@@ -682,7 +684,7 @@ class CrazyflieServer(Node):
 
         t_base = TransformStamped()
         t_base.header.stamp = self.get_clock().now().to_msg()
-        t_base.header.frame_id = cf_name +'/odom'
+        t_base.header.frame_id = self.swarm._cfs[uri].reference_frame
         t_base.child_frame_id = cf_name
         t_base.transform.translation.x = x
         t_base.transform.translation.y = y
