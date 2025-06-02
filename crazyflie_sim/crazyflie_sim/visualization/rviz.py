@@ -12,10 +12,12 @@ from ..sim_data_types import Action, State
 class Visualization:
     """Publishes ROS 2 transforms of the states, so that they can be visualized in RVIZ."""
 
-    def __init__(self, node: Node, params: dict, names: list[str], states: list[State], reference_frames: list[str]):
+    def __init__(
+        self, node: Node, params: dict, names: list[str], states: list[State], reference_frames: list[str]
+        ):
         self.node = node
         self.names = names
-        self.reference_frames = reference_frames 
+        self.reference_frames = reference_frames
         self.tfbr = TransformBroadcaster(self.node)
 
     def step(self, t, states: list[State], states_desired: list[State], actions: list[Action]):

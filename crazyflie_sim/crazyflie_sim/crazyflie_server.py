@@ -67,7 +67,7 @@ class CrazyflieServer(Node):
                     initial_states.append(State(pos))
                     # Get the current reference frame for the robot
                     reference_frame = world_tf_name
-                    if self._ros_parameters.get('fileversion', 0) >= 3:
+                    if robot_yaml_version >= 3:
                         try:
                             reference_frame = self._ros_parameters['all']['reference_frame']
                         except KeyError:
@@ -78,7 +78,8 @@ class CrazyflieServer(Node):
                         except KeyError:
                             pass
                         try:
-                            reference_frame = self._ros_parameters['robots'][cfname]['reference_frame']
+                            reference_frame = self._ros_parameters['robots'][
+                                cfname]['reference_frame']
                         except KeyError:
                             pass
                     reference_frames.append(reference_frame)
