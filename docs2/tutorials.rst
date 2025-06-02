@@ -403,7 +403,7 @@ Let's take a look at the launch file (multiranger_nav3_launch.py):
 
 The crazyflie_server, vel_mux and slam toolbox nodes are obviously the same as the mapping launch file example, with some key differences:
 
-* crazyflie_server: An extra parameter called 'world_tf_name' which changes the name of the 'world' transform to 'map'. This is to ensure compatibilty with the NAV2 bringup node later.
+* crazyflie_server: The reference frame is set to 'map'. This is to ensure compatibilty with the NAV2 bringup node later.
 * slam toolbox:  'map_frame' set to 'map, 'mode' set to localization with a 'map_file_name' and 'map_start_pose' (now remember marking the start position of the mapping tutorial?)
 
 The next two nodes are new, which are included IncludeLaunchDescription to include other launch files (since these are pretty big).
