@@ -4,6 +4,7 @@
 A crazyflie server for simulation.
 
     2022 - Wolfgang Hönig (TU Berlin)
+    2025 - Updated by Kimberly McGuire (Independent)
 """
 
 from functools import partial
@@ -44,9 +45,9 @@ class CrazyflieServer(Node):
         robot_yaml_version = 0
 
         try:
-            robot_yaml_version = self._ros_parameters["fileversion"]
+            robot_yaml_version = self._ros_parameters['fileversion']
         except KeyError:
-            self.get_logger().info("No fileversion found in crazyflies.yaml, assuming version 0")
+            self.get_logger().info('No fileversion found in crazyflies.yaml, assuming version 0')
 
         robot_data = self._ros_parameters['robots']
 
@@ -64,25 +65,29 @@ class CrazyflieServer(Node):
                     names.append(cfname)
                     pos = robot_data[cfname]['initial_position']
                     initial_states.append(State(pos))
-                # Get the current reference frame for the robot
+                    # Get the current reference frame for the robot
                     reference_frame = world_tf_name
-                    try:
-                        reference_frame =self._ros_parameters['all']["reference_frame"]
-                    except KeyError:
-                        pass
-                    try: 
-                        reference_frame =self._ros_parameters['robot_types'][robot_data[cfname]['type']]["reference_frame"]
-                    except KeyError:
-                        pass
-                    try:
-                        reference_frame =self._ros_parameters['robots'][cfname]["reference_frame"]
-                    except KeyError:
-                        pass
+                    if self._ros_parameters.get('fileversion', 0) >= 3:
+                        try:
+                            reference_frame = self._ros_parameters['all']['reference_frame']
+                        except KeyError:
+                            pass
+                        try:
+                            reference_frame = self._ros_parameters['robot_types'][
+                                robot_data[cfname]['type']]['reference_frame']
+                        except KeyError:
+                            pass
+                        try:
+                            reference_frame = self._ros_parameters['robots'][cfname]['reference_frame']
+                        except KeyError:
+                            pass
                     reference_frames.append(reference_frame)
 
         # initialize backend by dynamically loading the module
         backend_name = self._ros_parameters['sim']['backend']
-        module = importlib.import_module('.backend.' + backend_name, package='crazyflie_sim')
+        module = importlib.import_module(
+            '.backend.' + backend_name, package='crazyflie_sim'
+        )
         class_ = getattr(module, 'Backend')
         self.backend = class_(self, names, initial_states)
 
@@ -90,22 +95,26 @@ class CrazyflieServer(Node):
         self.visualizations = []
         for vis_key in self._ros_parameters['sim']['visualizations']:
             if self._ros_parameters['sim']['visualizations'][vis_key]['enabled']:
-                module = importlib.import_module('.visualization.' +
-                                                 str(vis_key),
-                                                 package='crazyflie_sim')
+                module = importlib.import_module(
+                    '.visualization.' + str(vis_key), package='crazyflie_sim'
+                )
                 class_ = getattr(module, 'Visualization')
                 if vis_key == 'rviz':
                     # special case for rviz, which needs the reference frames
-                    vis = class_(self,
-                                 self._ros_parameters['sim']['visualizations'][vis_key],
-                                 names,
-                                 initial_states,
-                                 reference_frames)
+                    vis = class_(
+                        self,
+                        self._ros_parameters['sim']['visualizations'][vis_key],
+                        names,
+                        initial_states,
+                        reference_frames
+                    )
                 else:
-                    vis = class_(self,
-                                self._ros_parameters['sim']['visualizations'][vis_key],
-                                names,
-                                initial_states)
+                    vis = class_(
+                        self,
+                        self._ros_parameters['sim']['visualizations'][vis_key],
+                        names,
+                        initial_states
+                    )
                 self.visualizations.append(vis)
 
         controller_name = backend_name = self._ros_parameters['sim']['controller']
