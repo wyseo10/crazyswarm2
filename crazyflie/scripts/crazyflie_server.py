@@ -109,11 +109,12 @@ class CrazyflieServer(Node):
                                 "status": self._log_status_data_callback}
 
         world_tf_name = "world"
+        robot_yaml_version = 0
+
         try:
             robot_yaml_version = self._ros_parameters["fileversion"]
         except KeyError:
             self.get_logger().info("No fileversion found in crazyflies.yaml, assuming version 0")
-            robot_yaml_version = 0
         
         # Check if the Crazyflie library is initialized
         robot_data = self._ros_parameters["robots"]
