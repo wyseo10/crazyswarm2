@@ -13,8 +13,13 @@ class Visualization:
     """Publishes ROS 2 transforms of the states, so that they can be visualized in RVIZ."""
 
     def __init__(
-        self, node: Node, params: dict, names: list[str], states: list[State], reference_frames: list[str]
-        ):
+        self,
+        node: Node,
+        params: dict,
+        names: list[str],
+        states: list[State],
+        reference_frames: list[str],
+    ):
         self.node = node
         self.names = names
         self.reference_frames = reference_frames
