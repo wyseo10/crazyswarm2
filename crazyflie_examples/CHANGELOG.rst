@@ -2,7 +2,7 @@
 Changelog for package crazyflie_examples
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.0.0 (2025-06-21)
+------------------
 * First official release.
 * Contributors: Julien Thevenoz, Khaled Wahba, Kimberly N. McGuire, Pablo Robles, Wolfgang Hönig, phanfeld
