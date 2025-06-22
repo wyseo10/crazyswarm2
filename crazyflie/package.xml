@@ -17,6 +17,7 @@
   <depend>crazyflie_interfaces</depend>
   <depend>geometry_msgs</depend>
   <depend>motion_capture_tracking_interfaces</depend>
+  <depend>eigen</depend>
 
   <exec_depend>tf_transformations</exec_depend>
 
