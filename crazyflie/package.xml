@@ -19,6 +19,7 @@
   <depend>motion_capture_tracking_interfaces</depend>
   <depend>eigen</depend>
   <depend>boost</depend>
+  <depend>libusb-1.0-dev</depend>
 
   <exec_depend>tf_transformations</exec_depend>
 
