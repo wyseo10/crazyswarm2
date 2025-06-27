@@ -25,7 +25,6 @@
 #include "crazyflie_interfaces/msg/status.hpp"
 #include "crazyflie_interfaces/msg/log_data_generic.hpp"
 #include "crazyflie_interfaces/msg/connection_statistics_array.hpp"
-#include "rclcpp/qos.hpp"
 
 using std::placeholders::_1;
 using std::placeholders::_2;
