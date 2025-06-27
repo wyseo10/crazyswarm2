@@ -41,6 +41,12 @@ using std_srvs::srv::Empty;
 using motion_capture_tracking_interfaces::msg::NamedPoseArray;
 using crazyflie_interfaces::msg::FullState;
 
+#ifdef ROS_DISTRO_HUMBLE
+inline auto get_service_qos() { return rmw_qos_profile_services_default; }
+#else
+inline auto get_service_qos() { return rclcpp::ServicesQoS(); }
+#endif
+
 // Note on logging: we use a single logger with string prefixes
 // A better way would be to use named child loggers, but these do not
 // report to /rosout in humble, see https://github.com/ros2/rclpy/issues/1131
@@ -156,14 +162,15 @@ public:
     // Services
     auto service_qos = rmw_qos_profile_services_default;
 
-    service_emergency_ = node->create_service<Empty>(name + "/emergency", std::bind(&CrazyflieROS::emergency, this, _1, _2), service_qos, callback_group_cf_srv);
-    service_start_trajectory_ = node->create_service<StartTrajectory>(name + "/start_trajectory", std::bind(&CrazyflieROS::start_trajectory, this, _1, _2), service_qos, callback_group_cf_srv);
-    service_takeoff_ = node->create_service<Takeoff>(name + "/takeoff", std::bind(&CrazyflieROS::takeoff, this, _1, _2), service_qos, callback_group_cf_srv);
-    service_land_ = node->create_service<Land>(name + "/land", std::bind(&CrazyflieROS::land, this, _1, _2), service_qos, callback_group_cf_srv);
-    service_go_to_ = node->create_service<GoTo>(name + "/go_to", std::bind(&CrazyflieROS::go_to, this, _1, _2), service_qos, callback_group_cf_srv);
-    service_upload_trajectory_ = node->create_service<UploadTrajectory>(name + "/upload_trajectory", std::bind(&CrazyflieROS::upload_trajectory, this, _1, _2), service_qos, callback_group_cf_srv);
-    service_notify_setpoints_stop_ = node->create_service<NotifySetpointsStop>(name + "/notify_setpoints_stop", std::bind(&CrazyflieROS::notify_setpoints_stop, this, _1, _2), service_qos, callback_group_cf_srv);
-    service_arm_ = node->create_service<Arm>(name + "/arm", std::bind(&CrazyflieROS::arm, this, _1, _2), service_qos, callback_group_cf_srv);
+
+    service_emergency_ = node->create_service<Empty>(name + "/emergency", std::bind(&CrazyflieROS::emergency, this, _1, _2),  get_service_qos(), callback_group_cf_srv);
+    service_start_trajectory_ = node->create_service<StartTrajectory>(name + "/start_trajectory", std::bind(&CrazyflieROS::start_trajectory, this, _1, _2), get_service_qos(), callback_group_cf_srv);
+    service_takeoff_ = node->create_service<Takeoff>(name + "/takeoff", std::bind(&CrazyflieROS::takeoff, this, _1, _2), get_service_qos(), callback_group_cf_srv);
+    service_land_ = node->create_service<Land>(name + "/land", std::bind(&CrazyflieROS::land, this, _1, _2), get_service_qos(), callback_group_cf_srv);
+    service_go_to_ = node->create_service<GoTo>(name + "/go_to", std::bind(&CrazyflieROS::go_to, this, _1, _2), get_service_qos(), callback_group_cf_srv);
+    service_upload_trajectory_ = node->create_service<UploadTrajectory>(name + "/upload_trajectory", std::bind(&CrazyflieROS::upload_trajectory, this, _1, _2), get_service_qos(), callback_group_cf_srv);
+    service_notify_setpoints_stop_ = node->create_service<NotifySetpointsStop>(name + "/notify_setpoints_stop", std::bind(&CrazyflieROS::notify_setpoints_stop, this, _1, _2), get_service_qos(), callback_group_cf_srv);
+    service_arm_ = node->create_service<Arm>(name + "/arm", std::bind(&CrazyflieROS::arm, this, _1, _2), get_service_qos(), callback_group_cf_srv);
 
     // Topics
 
@@ -1142,17 +1149,15 @@ public:
     subscription_cmd_full_state_ = this->create_subscription<crazyflie_interfaces::msg::FullState>("all/cmd_full_state", rclcpp::SystemDefaultsQoS(), std::bind(&CrazyflieServer::cmd_full_state_changed, this, _1), sub_opt_all_cmd);
 
     // services for "all"
-    auto service_qos = rmw_qos_profile_services_default;
-
-    service_start_trajectory_ = this->create_service<StartTrajectory>("all/start_trajectory", std::bind(&CrazyflieServer::start_trajectory, this, _1, _2), service_qos, callback_group_all_srv_);
-    service_takeoff_ = this->create_service<Takeoff>("all/takeoff", std::bind(&CrazyflieServer::takeoff, this, _1, _2), service_qos, callback_group_all_srv_);
-    service_land_ = this->create_service<Land>("all/land", std::bind(&CrazyflieServer::land, this, _1, _2), service_qos, callback_group_all_srv_);
-    service_go_to_ = this->create_service<GoTo>("all/go_to", std::bind(&CrazyflieServer::go_to, this, _1, _2), service_qos, callback_group_all_srv_);
-    service_notify_setpoints_stop_ = this->create_service<NotifySetpointsStop>("all/notify_setpoints_stop", std::bind(&CrazyflieServer::notify_setpoints_stop, this, _1, _2), service_qos, callback_group_all_srv_);
-    service_arm_ = this->create_service<Arm>("all/arm", std::bind(&CrazyflieServer::arm, this, _1, _2), service_qos, callback_group_all_srv_);
+    service_start_trajectory_ = this->create_service<StartTrajectory>("all/start_trajectory", std::bind(&CrazyflieServer::start_trajectory, this, _1, _2), get_service_qos(), callback_group_all_srv_);
+    service_takeoff_ = this->create_service<Takeoff>("all/takeoff", std::bind(&CrazyflieServer::takeoff, this, _1, _2), get_service_qos(), callback_group_all_srv_);
+    service_land_ = this->create_service<Land>("all/land", std::bind(&CrazyflieServer::land, this, _1, _2), get_service_qos(), callback_group_all_srv_);
+    service_go_to_ = this->create_service<GoTo>("all/go_to", std::bind(&CrazyflieServer::go_to, this, _1, _2), get_service_qos(), callback_group_all_srv_);
+    service_notify_setpoints_stop_ = this->create_service<NotifySetpointsStop>("all/notify_setpoints_stop", std::bind(&CrazyflieServer::notify_setpoints_stop, this, _1, _2), get_service_qos(), callback_group_all_srv_);
+    service_arm_ = this->create_service<Arm>("all/arm", std::bind(&CrazyflieServer::arm, this, _1, _2), get_service_qos(), callback_group_all_srv_);
 
     // This is the last service to announce and can be used to check if the server is fully available
-    service_emergency_ = this->create_service<Empty>("all/emergency", std::bind(&CrazyflieServer::emergency, this, _1, _2), service_qos, callback_group_all_srv_);
+    service_emergency_ = this->create_service<Empty>("all/emergency", std::bind(&CrazyflieServer::emergency, this, _1, _2), get_service_qos(), callback_group_all_srv_);
   }
 
 

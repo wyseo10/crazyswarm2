@@ -18,6 +18,13 @@ find_package(geometry_msgs REQUIRED)
 find_package(motion_capture_tracking_interfaces REQUIRED)
 find_package(Eigen3 REQUIRED)
 
+if (DEFINED ENV{ROS_DISTRO})
+  set(ROS_DISTRO_VALUE "$ENV{ROS_DISTRO}")
+else()
+  message(WARNING "ROS_DISTRO environment variable not set. C++ macro will be empty or default.")
+  set(ROS_DISTRO_VALUE "unknown_distro") # Or an empty string, or "NO_ROS_DISTRO_SET"
+endif()
+
 # add dependencies
 add_subdirectory(deps/crazyflie_tools)
 # add_subdirectory(externalDependencies/libmotioncapture)
@@ -48,6 +55,11 @@ add_executable(crazyflie_server
 target_link_libraries(crazyflie_server
   crazyflie_cpp
 )
+
+if("${ROS_DISTRO_VALUE}" STREQUAL "humble")
+  target_compile_definitions(crazyflie_server PRIVATE ROS_DISTRO_HUMBLE)
+endif()
+
 ament_target_dependencies(crazyflie_server
   rclcpp
   tf2_ros
