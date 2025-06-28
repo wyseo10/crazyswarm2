@@ -17,6 +17,7 @@ find_package(crazyflie_interfaces REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(motion_capture_tracking_interfaces REQUIRED)
 find_package(Eigen3 REQUIRED)
+find_package(ros_environment REQUIRED)
 
 if (DEFINED ENV{ROS_DISTRO})
   set(ROS_DISTRO_VALUE "$ENV{ROS_DISTRO}")

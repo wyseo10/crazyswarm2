@@ -20,6 +20,8 @@
   <depend>eigen</depend>
   <depend>boost</depend>
   <depend>libusb-1.0-dev</depend>
+  <depend>ros_environment</depend>
+
 
   <exec_depend>tf_transformations</exec_depend>
 
