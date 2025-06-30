@@ -2,6 +2,10 @@
 Changelog for package crazyflie_sim
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
+
 1.0.0 (2025-06-21)
 ------------------
 * First official release.
