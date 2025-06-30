@@ -2,8 +2,8 @@
 Changelog for package crazyflie_interfaces
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.0.1 (2025-06-30)
+------------------
 * Fix build errors and dependencies on ROS Build Farm
 * Contributors: Kimberly N. McGuire, Wolfgang Hönig
 
