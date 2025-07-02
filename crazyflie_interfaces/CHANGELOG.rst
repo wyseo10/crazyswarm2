@@ -2,8 +2,8 @@
 Changelog for package crazyflie_interfaces
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.0.2 (2025-07-02)
+------------------
 * Add additional dependencies to address ROSfarm build failures
 * Contributors: Wolfgang Hönig
 
