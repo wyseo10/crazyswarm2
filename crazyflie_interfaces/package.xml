@@ -21,6 +21,9 @@
 
   <member_of_group>rosidl_interface_packages</member_of_group>
 
+  <!-- For build failures on humble, see https://answers.ros.org/question/416825/ -->
+  <test_depend>ament_cmake_cppcheck</test_depend>
+
   <export>
     <build_type>ament_cmake</build_type>
   </export>
