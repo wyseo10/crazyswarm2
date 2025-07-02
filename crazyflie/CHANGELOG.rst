@@ -2,6 +2,9 @@
 Changelog for package crazyflie
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.0.2 (2025-07-02)
+------------------
+
 1.0.1 (2025-06-30)
 ------------------
 * Fix build errors and dependencies on ROS Build Farm
