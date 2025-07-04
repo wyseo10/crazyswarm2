@@ -4,7 +4,8 @@
   <name>crazyflie_py</name>
   <version>1.0.2</version>
   <description>Simple Python Interface for Crayzswarm2</description>
-  <maintainer email="hoenig@tu-berlin.de">Wolfgang Hönig, Kimberly McGuire </maintainer>
+  <maintainer email="hoenig@tu-berlin.de">Wolfgang Hönig</maintainer>
+  <maintainer email="kimberleymcguire@gmail.com">Kimberly McGuire</maintainer>
   <license>MIT</license>
 
   <depend>rclpy</depend>
