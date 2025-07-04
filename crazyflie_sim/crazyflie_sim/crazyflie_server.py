@@ -4,7 +4,7 @@
 A crazyflie server for simulation.
 
     2022 - Wolfgang Hönig (TU Berlin)
-    2025 - Updated by Kimberly McGuire (Independent)
+    2025 - Updated by Kimberly N. McGuire (Independent)
 """
 
 from functools import partial
