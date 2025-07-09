@@ -2,8 +2,8 @@
 Changelog for package crazyflie_interfaces
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.0.3 (2025-07-09)
+------------------
 * add more dependencies to fix the binary build
 * Improve package.xml (separate maintainer tags, update year)
 * Contributors: Kimberly N. McGuire

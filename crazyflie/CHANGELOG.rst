@@ -2,8 +2,8 @@
 Changelog for package crazyflie
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.0.3 (2025-07-09)
+------------------
 * Improve package.xml (separate maintainer tags, update year)
 * Contributors: Kimberly N. McGuire
 
