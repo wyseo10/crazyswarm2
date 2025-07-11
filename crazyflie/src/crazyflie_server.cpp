@@ -18,6 +18,7 @@
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "geometry_msgs/msg/transform_stamped.hpp"
 #include "sensor_msgs/msg/laser_scan.hpp"
+#include "nav_msgs/msg/odometry.hpp"
 #include "crazyflie_interfaces/srv/upload_trajectory.hpp"
 #include "motion_capture_tracking_interfaces/msg/named_pose_array.hpp"
 #include "crazyflie_interfaces/msg/full_state.hpp"
@@ -436,6 +437,8 @@ public:
           else if (i.first.find("default_topics.odom") == 0) {
             int freq = log_config_map["default_topics.odom.frequency"].get<int>();
             RCLCPP_INFO(logger_, "[%s] Logging to /odom at %d Hz", name_.c_str(), freq);
+
+            publisher_odom_ = node->create_publisher<nav_msgs::msg::Odometry>(name + "/odom", 10);
             
           }
           else if (i.first.find("default_topics.status") == 0) {
@@ -991,6 +994,8 @@ private:
 
   std::unique_ptr<LogBlock<logScan>> log_block_scan_;
   rclcpp::Publisher<sensor_msgs::msg::LaserScan>::SharedPtr publisher_scan_;
+
+  rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr publisher_odom_;
 
   std::unique_ptr<LogBlock<logStatus>> log_block_status_;
   bool status_has_radio_stats_;
