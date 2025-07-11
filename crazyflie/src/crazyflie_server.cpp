@@ -120,6 +120,13 @@ private:
     uint16_t right;
   } __attribute__((packed));
 
+  struct logOdom {
+    uint16_t x;
+    uint16_t z;
+    uint16_t y;
+  } __attribute__((packed));
+
+
   struct logStatus {
     // general status
     uint16_t supervisorInfo; // supervisor.info
@@ -439,6 +446,16 @@ public:
             RCLCPP_INFO(logger_, "[%s] Logging to /odom at %d Hz", name_.c_str(), freq);
 
             publisher_odom_ = node->create_publisher<nav_msgs::msg::Odometry>(name + "/odom", 10);
+
+            std::function<void(uint32_t, const logOdom*)> cb = std::bind(&CrazyflieROS::on_logging_odom, this, std::placeholders::_1, std::placeholders::_2);
+
+            log_block_odom_.reset(new LogBlock<logOdom>(
+              &cf_,{
+                {"stateEstimateZ", "x"},
+                {"stateEstimateZ", "y"},
+                {"stateEstimateZ", "z"},
+              }, cb));
+            log_block_odom_->start(uint8_t(100.0f / (float)freq)); // this is in tens of milliseconds
             
           }
           else if (i.first.find("default_topics.status") == 0) {
@@ -834,6 +851,11 @@ private:
     }
   }
 
+  void on_logging_odom(uint32_t time_in_ms, const logOdom* data) {
+        RCLCPP_INFO(logger_, "Received Odom Data");
+
+  }
+
   void on_logging_status(uint32_t time_in_ms, const logStatus* data) {
     if (publisher_status_) {
       
@@ -995,6 +1017,7 @@ private:
   std::unique_ptr<LogBlock<logScan>> log_block_scan_;
   rclcpp::Publisher<sensor_msgs::msg::LaserScan>::SharedPtr publisher_scan_;
 
+  std::unique_ptr<LogBlock<logOdom>> log_block_odom_;
   rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr publisher_odom_;
 
   std::unique_ptr<LogBlock<logStatus>> log_block_status_;
