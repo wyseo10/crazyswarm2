@@ -23,6 +23,7 @@
 #include "motion_capture_tracking_interfaces/msg/named_pose_array.hpp"
 #include "crazyflie_interfaces/msg/full_state.hpp"
 #include "crazyflie_interfaces/msg/position.hpp"
+#include "crazyflie_interfaces/msg/hover.hpp"
 #include "crazyflie_interfaces/msg/status.hpp"
 #include "crazyflie_interfaces/msg/log_data_generic.hpp"
 #include "crazyflie_interfaces/msg/connection_statistics_array.hpp"
@@ -192,6 +193,7 @@ public:
     subscription_cmd_vel_legacy_ = node->create_subscription<geometry_msgs::msg::Twist>(name + "/cmd_vel_legacy", rclcpp::SystemDefaultsQoS(), std::bind(&CrazyflieROS::cmd_vel_legacy_changed, this, _1), sub_opt_cf_cmd);
     subscription_cmd_full_state_ = node->create_subscription<crazyflie_interfaces::msg::FullState>(name + "/cmd_full_state", rclcpp::SystemDefaultsQoS(), std::bind(&CrazyflieROS::cmd_full_state_changed, this, _1), sub_opt_cf_cmd);
     subscription_cmd_position_ = node->create_subscription<crazyflie_interfaces::msg::Position>(name + "/cmd_position", rclcpp::SystemDefaultsQoS(), std::bind(&CrazyflieROS::cmd_position_changed, this, _1), sub_opt_cf_cmd);
+    subscription_cmd_hover_ = node->create_subscription<crazyflie_interfaces::msg::Hover>(name + "/cmd_hover", rclcpp::SystemDefaultsQoS(), std::bind(&CrazyflieROS::cmd_hover_changed, this, _1), sub_opt_cf_cmd);
 
     publisher_robot_description_ = node->create_publisher<std_msgs::msg::String>(name + "/robot_description",
       rclcpp::QoS(1).transient_local());
@@ -667,6 +669,14 @@ private:
     cf_.sendPositionSetpoint(x, y, z, yaw);
   }
 
+  void cmd_hover_changed(const crazyflie_interfaces::msg::Hover::SharedPtr msg) {
+    float vx = msg->vx;
+    float vy = msg->vy;
+    float yawRate = -1.0 * msg->yaw_rate * 180.0 / M_PI; // Convert from radians to degrees
+    float z = msg->z_distance;
+    cf_.sendHoverSetpoint(vx, vy, yawRate, z);
+  }
+
   void cmd_vel_legacy_changed(const geometry_msgs::msg::Twist::SharedPtr msg)
   {
     float roll = msg->linear.y;
@@ -1042,6 +1052,7 @@ private:
   rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr subscription_cmd_vel_legacy_;
   rclcpp::Subscription<crazyflie_interfaces::msg::FullState>::SharedPtr subscription_cmd_full_state_;
   rclcpp::Subscription<crazyflie_interfaces::msg::Position>::SharedPtr subscription_cmd_position_;
+  rclcpp::Subscription<crazyflie_interfaces::msg::Hover>::SharedPtr subscription_cmd_hover_;
 
   rclcpp::Publisher<std_msgs::msg::String>::SharedPtr publisher_robot_description_;
 
