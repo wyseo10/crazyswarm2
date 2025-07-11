@@ -122,9 +122,12 @@ private:
 
   struct logOdom {
     int16_t x;
-    int16_t z;
     int16_t y;
+    int16_t z;
     int32_t quatCompressed;
+    int16_t vx;
+    int16_t vy;
+    int16_t vz;
   } __attribute__((packed));
 
 
@@ -456,7 +459,9 @@ public:
                 {"stateEstimateZ", "y"},
                 {"stateEstimateZ", "z"},
                 {"stateEstimateZ", "quat"},
-
+                {"stateEstimateZ", "vx"},
+                {"stateEstimateZ", "vy"},
+                {"stateEstimateZ", "vz"}
               }, cb));
             log_block_odom_->start(uint8_t(100.0f / (float)freq)); // this is in tens of milliseconds
             
@@ -869,7 +874,11 @@ private:
       msg.pose.pose.orientation.y = q[1];
       msg.pose.pose.orientation.z = q[2];
       msg.pose.pose.orientation.w = q[3];
-    
+
+      msg.twist.twist.linear.x = data->vx / 1000.0f;
+      msg.twist.twist.linear.y = data->vy / 1000.0f;
+      msg.twist.twist.linear.z = data->vz / 1000.0f;
+
       publisher_odom_->publish(msg);
     }
 
