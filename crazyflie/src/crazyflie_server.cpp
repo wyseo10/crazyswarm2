@@ -434,7 +434,9 @@ public:
             log_block_scan_->start(uint8_t(100.0f / (float)freq)); // this is in tens of milliseconds
           }
           else if (i.first.find("default_topics.odom") == 0) {
-            RCLCPP_INFO(logger_, " Can't log odom, cflib only ");
+            int freq = log_config_map["default_topics.odom.frequency"].get<int>();
+            RCLCPP_INFO(logger_, "[%s] Logging to /odom at %d Hz", name_.c_str(), freq);
+            
           }
           else if (i.first.find("default_topics.status") == 0) {
             int freq = log_config_map["default_topics.status.frequency"].get<int>();
