@@ -124,6 +124,7 @@ private:
     int16_t x;
     int16_t z;
     int16_t y;
+    int32_t quatCompressed;
   } __attribute__((packed));
 
 
@@ -454,6 +455,8 @@ public:
                 {"stateEstimateZ", "x"},
                 {"stateEstimateZ", "y"},
                 {"stateEstimateZ", "z"},
+                {"stateEstimateZ", "quat"},
+
               }, cb));
             log_block_odom_->start(uint8_t(100.0f / (float)freq)); // this is in tens of milliseconds
             
@@ -859,6 +862,13 @@ private:
       msg.pose.pose.position.x = data->x / 1000.0f;
       msg.pose.pose.position.y = data->y / 1000.0f;
       msg.pose.pose.position.z = data->z / 1000.0f;
+
+      float q[4];
+      quatdecompress(data->quatCompressed, q);
+      msg.pose.pose.orientation.x = q[0];
+      msg.pose.pose.orientation.y = q[1];
+      msg.pose.pose.orientation.z = q[2];
+      msg.pose.pose.orientation.w = q[3];
     
       publisher_odom_->publish(msg);
     }
