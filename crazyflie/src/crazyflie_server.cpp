@@ -128,6 +128,9 @@ private:
     int16_t vx;
     int16_t vy;
     int16_t vz;
+    int16_t rateRoll;
+    int16_t ratePitch;
+    int16_t rateYaw;
   } __attribute__((packed));
 
 
@@ -461,7 +464,10 @@ public:
                 {"stateEstimateZ", "quat"},
                 {"stateEstimateZ", "vx"},
                 {"stateEstimateZ", "vy"},
-                {"stateEstimateZ", "vz"}
+                {"stateEstimateZ", "vz"},
+                {"stateEstimateZ", "rateRoll"},
+                {"stateEstimateZ", "ratePitch"},
+                {"stateEstimateZ", "rateYaw"}
               }, cb));
             log_block_odom_->start(uint8_t(100.0f / (float)freq)); // this is in tens of milliseconds
             
@@ -878,6 +884,9 @@ private:
       msg.twist.twist.linear.x = data->vx / 1000.0f;
       msg.twist.twist.linear.y = data->vy / 1000.0f;
       msg.twist.twist.linear.z = data->vz / 1000.0f;
+      msg.twist.twist.angular.x = data->rateRoll / 1000.0f;
+      msg.twist.twist.angular.y = data->ratePitch / 1000.0f;
+      msg.twist.twist.angular.z = data->rateYaw / 1000.0f;
 
       publisher_odom_->publish(msg);
     }
