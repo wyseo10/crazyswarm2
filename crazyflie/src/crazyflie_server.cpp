@@ -121,9 +121,9 @@ private:
   } __attribute__((packed));
 
   struct logOdom {
-    uint16_t x;
-    uint16_t z;
-    uint16_t y;
+    int16_t x;
+    int16_t z;
+    int16_t y;
   } __attribute__((packed));
 
 
@@ -852,7 +852,16 @@ private:
   }
 
   void on_logging_odom(uint32_t time_in_ms, const logOdom* data) {
-        RCLCPP_INFO(logger_, "Received Odom Data");
+    if (publisher_odom_) {
+      nav_msgs::msg::Odometry msg;
+      msg.header.stamp = node_->get_clock()->now();
+      msg.header.frame_id = name_;
+      msg.pose.pose.position.x = data->x / 1000.0f;
+      msg.pose.pose.position.y = data->y / 1000.0f;
+      msg.pose.pose.position.z = data->z / 1000.0f;
+    
+      publisher_odom_->publish(msg);
+    }
 
   }
 
