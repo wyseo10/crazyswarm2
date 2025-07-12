@@ -12,6 +12,7 @@ find_package(rclcpp REQUIRED)
 find_package(tf2_ros REQUIRED)
 find_package(rclpy REQUIRED)
 find_package(std_srvs REQUIRED)
+find_package(nav_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(crazyflie_interfaces REQUIRED)
 find_package(geometry_msgs REQUIRED)
@@ -65,6 +66,7 @@ ament_target_dependencies(crazyflie_server
   rclcpp
   tf2_ros
   sensor_msgs
+  nav_msgs
   std_srvs
   crazyflie_interfaces
   motion_capture_tracking_interfaces

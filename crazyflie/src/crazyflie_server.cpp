@@ -18,10 +18,12 @@
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "geometry_msgs/msg/transform_stamped.hpp"
 #include "sensor_msgs/msg/laser_scan.hpp"
+#include "nav_msgs/msg/odometry.hpp"
 #include "crazyflie_interfaces/srv/upload_trajectory.hpp"
 #include "motion_capture_tracking_interfaces/msg/named_pose_array.hpp"
 #include "crazyflie_interfaces/msg/full_state.hpp"
 #include "crazyflie_interfaces/msg/position.hpp"
+#include "crazyflie_interfaces/msg/hover.hpp"
 #include "crazyflie_interfaces/msg/status.hpp"
 #include "crazyflie_interfaces/msg/log_data_generic.hpp"
 #include "crazyflie_interfaces/msg/connection_statistics_array.hpp"
@@ -119,6 +121,20 @@ private:
     uint16_t right;
   } __attribute__((packed));
 
+  struct logOdom {
+    int16_t x;
+    int16_t y;
+    int16_t z;
+    int32_t quatCompressed;
+    int16_t vx;
+    int16_t vy;
+    int16_t vz;
+    //int16_t rateRoll;  
+    //int16_t ratePitch;
+    //int16_t rateYaw;
+  } __attribute__((packed));
+
+
   struct logStatus {
     // general status
     uint16_t supervisorInfo; // supervisor.info
@@ -177,6 +193,7 @@ public:
     subscription_cmd_vel_legacy_ = node->create_subscription<geometry_msgs::msg::Twist>(name + "/cmd_vel_legacy", rclcpp::SystemDefaultsQoS(), std::bind(&CrazyflieROS::cmd_vel_legacy_changed, this, _1), sub_opt_cf_cmd);
     subscription_cmd_full_state_ = node->create_subscription<crazyflie_interfaces::msg::FullState>(name + "/cmd_full_state", rclcpp::SystemDefaultsQoS(), std::bind(&CrazyflieROS::cmd_full_state_changed, this, _1), sub_opt_cf_cmd);
     subscription_cmd_position_ = node->create_subscription<crazyflie_interfaces::msg::Position>(name + "/cmd_position", rclcpp::SystemDefaultsQoS(), std::bind(&CrazyflieROS::cmd_position_changed, this, _1), sub_opt_cf_cmd);
+    subscription_cmd_hover_ = node->create_subscription<crazyflie_interfaces::msg::Hover>(name + "/cmd_hover", rclcpp::SystemDefaultsQoS(), std::bind(&CrazyflieROS::cmd_hover_changed, this, _1), sub_opt_cf_cmd);
 
     publisher_robot_description_ = node->create_publisher<std_msgs::msg::String>(name + "/robot_description",
       rclcpp::QoS(1).transient_local());
@@ -433,6 +450,30 @@ public:
               }, cb));
             log_block_scan_->start(uint8_t(100.0f / (float)freq)); // this is in tens of milliseconds
           }
+          else if (i.first.find("default_topics.odom") == 0) {
+            int freq = log_config_map["default_topics.odom.frequency"].get<int>();
+            RCLCPP_INFO(logger_, "[%s] Logging to /odom at %d Hz", name_.c_str(), freq);
+
+            publisher_odom_ = node->create_publisher<nav_msgs::msg::Odometry>(name + "/odom", 10);
+
+            std::function<void(uint32_t, const logOdom*)> cb = std::bind(&CrazyflieROS::on_logging_odom, this, std::placeholders::_1, std::placeholders::_2);
+
+            log_block_odom_.reset(new LogBlock<logOdom>(
+              &cf_,{
+                {"stateEstimateZ", "x"},
+                {"stateEstimateZ", "y"},
+                {"stateEstimateZ", "z"},
+                {"stateEstimateZ", "quat"},
+                {"stateEstimateZ", "vx"},
+                {"stateEstimateZ", "vy"},
+                {"stateEstimateZ", "vz"},
+                //{"stateEstimateZ", "rateRoll"},
+                //{"stateEstimateZ", "ratePitch"},
+                //{"stateEstimateZ", "rateYaw"}
+              }, cb));
+            log_block_odom_->start(uint8_t(100.0f / (float)freq)); // this is in tens of milliseconds
+            
+          }
           else if (i.first.find("default_topics.status") == 0) {
             int freq = log_config_map["default_topics.status.frequency"].get<int>();
             RCLCPP_INFO(logger_, "[%s] Logging to /status at %d Hz", name_.c_str(), freq);
@@ -626,6 +667,14 @@ private:
     float z = msg->z;
     float yaw = msg->yaw;
     cf_.sendPositionSetpoint(x, y, z, yaw);
+  }
+
+  void cmd_hover_changed(const crazyflie_interfaces::msg::Hover::SharedPtr msg) {
+    float vx = msg->vx;
+    float vy = msg->vy;
+    float yawRate = -1.0 * msg->yaw_rate * 180.0 / M_PI; // Convert from radians to degrees
+    float z = msg->z_distance;
+    cf_.sendHoverSetpoint(vx, vy, yawRate, z);
   }
 
   void cmd_vel_legacy_changed(const geometry_msgs::msg::Twist::SharedPtr msg)
@@ -826,6 +875,34 @@ private:
     }
   }
 
+  void on_logging_odom(uint32_t time_in_ms, const logOdom* data) {
+    if (publisher_odom_) {
+      nav_msgs::msg::Odometry msg;
+      msg.header.stamp = node_->get_clock()->now();
+      msg.header.frame_id = name_;
+      msg.pose.pose.position.x = data->x / 1000.0f;
+      msg.pose.pose.position.y = data->y / 1000.0f;
+      msg.pose.pose.position.z = data->z / 1000.0f;
+
+      float q[4];
+      quatdecompress(data->quatCompressed, q);
+      msg.pose.pose.orientation.x = q[0];
+      msg.pose.pose.orientation.y = q[1];
+      msg.pose.pose.orientation.z = q[2];
+      msg.pose.pose.orientation.w = q[3];
+
+      msg.twist.twist.linear.x = data->vx / 1000.0f;
+      msg.twist.twist.linear.y = data->vy / 1000.0f;
+      msg.twist.twist.linear.z = data->vz / 1000.0f;
+      //msg.twist.twist.angular.x = data->rateRoll / 1000.0f;
+      //msg.twist.twist.angular.y = data->ratePitch / 1000.0f;
+      //msg.twist.twist.angular.z = data->rateYaw / 1000.0f;
+
+      publisher_odom_->publish(msg);
+    }
+
+  }
+
   void on_logging_status(uint32_t time_in_ms, const logStatus* data) {
     if (publisher_status_) {
       
@@ -975,6 +1052,7 @@ private:
   rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr subscription_cmd_vel_legacy_;
   rclcpp::Subscription<crazyflie_interfaces::msg::FullState>::SharedPtr subscription_cmd_full_state_;
   rclcpp::Subscription<crazyflie_interfaces::msg::Position>::SharedPtr subscription_cmd_position_;
+  rclcpp::Subscription<crazyflie_interfaces::msg::Hover>::SharedPtr subscription_cmd_hover_;
 
   rclcpp::Publisher<std_msgs::msg::String>::SharedPtr publisher_robot_description_;
 
@@ -986,6 +1064,9 @@ private:
 
   std::unique_ptr<LogBlock<logScan>> log_block_scan_;
   rclcpp::Publisher<sensor_msgs::msg::LaserScan>::SharedPtr publisher_scan_;
+
+  std::unique_ptr<LogBlock<logOdom>> log_block_odom_;
+  rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr publisher_odom_;
 
   std::unique_ptr<LogBlock<logStatus>> log_block_status_;
   bool status_has_radio_stats_;
