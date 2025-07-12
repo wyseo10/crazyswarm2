@@ -17,7 +17,7 @@
   <depend>sensor_msgs</depend>
   <depend>crazyflie_interfaces</depend>
   <depend>geometry_msgs</depend>
-  <depend>nav2_msgs</depend>
+  <depend>nav_msgs</depend>
   <depend>motion_capture_tracking_interfaces</depend>
   <depend>eigen</depend>
   <depend>boost</depend>
