@@ -132,11 +132,22 @@ class CrazyflieSIL:
                 # We need to update to the latest firmware that has go_to_from.
                 raise ValueError('goTo from low-level modes not yet supported.')
             self.mode = CrazyflieSIL.MODE_HIGH_POLY
-            firm.plan_go_to(
-                self.planner,
-                relative,
-                firm.mkvec(*goal),
-                yaw, duration, self.time_func())
+            try:
+                firm.plan_go_to(
+                    self.planner,
+                    relative,
+                    False,
+                    firm.mkvec(*goal),
+                    yaw, duration, self.time_func())
+            except TypeError:
+                message = ('Warning: Your Crazyflie firmware is outdated. '
+                           ' Please update to the latest version.')
+                print(message)
+                firm.plan_go_to(
+                    self.planner,
+                    relative,
+                    firm.mkvec(*goal),
+                    yaw, duration, self.time_func())
 
     def uploadTrajectory(self,
                          trajectoryId: int,

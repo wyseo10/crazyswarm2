@@ -94,7 +94,7 @@ Mapping with simple mapper
 
 If you have a crazyflie with a multiranger and flowdeck, you can try out some simple mapping.
 
-Make sure that the scan and odometry logging is enabled in crazyflies.yaml:
+Make sure that the scan and odometry logging is enabled and the reference frame is set to odom in crazyflies.yaml:
 
 .. code-block:: bash
 
@@ -114,6 +114,12 @@ and make sure that the pid controller and kalman filter is enabled:
     stabilizer:
       estimator: 2 # 1: complementary, 2: kalman
       controller: 1 # 1: PID, 2: mellinger
+
+Finally make sure that the reference frame is set to 'cf231/odom' 
+
+.. code-block:: bash
+
+    reference_frame: cf231/odom
 
 If you are using a different name for your crazyflie, make sure to change the following in the example launch file (multiranger_simple_mapper_launch.py):
 
@@ -156,7 +162,7 @@ Go to crazyflie/config/crazyflie.yaml, change the URI of the crazyflie to the on
     enabled: true
     uri: radio://0/20/2M/E7E7E7E701
 
-And enable the following default topic logging:
+And enable the following default topic logging and the reference frames:
 
 .. code-block:: bash
 
@@ -178,6 +184,13 @@ Also, make sure that the standard controller is set to 1 (PID) for the flowdeck 
       controller: 1 # 1: PID, 2: mellinger
 
 
+Finally make sure that the reference frame is set to 'cf231/odom' 
+
+.. code-block:: bash
+
+    reference_frame: cf231/odom
+
+
 Connecting with the Crazyflie
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -186,47 +199,42 @@ Let's first look at the launch file real quick (multiranger_mapping_launch.py):
 
 .. code-block:: bash
 
-    return LaunchDescription([
-        Node(
-            package='crazyflie',
-            executable='crazyflie_server.py',
-            name='crazyflie_server',
-            output='screen',
-            parameters=[server_params],
-        ),
-        Node(
-            package='crazyflie',
-            executable='vel_mux.py',
-            name='vel_mux',
-            output='screen',
-            parameters=[{"hover_height": 0.3},
-                        {"incoming_twist_topic": "/cmd_vel"},
-                        {"robot_prefix": "/cf231"}]
-        ),
-        Node(
-        parameters=[
-          {'odom_frame': 'cf231/odom'},
-          {'map_frame': 'map'},
-          {'base_frame': 'cf231'},
-          {'scan_topic': 'cf231/scan'},
-          {'use_scan_matching': False},
-          {'max_laser_range': 3.5},
-          {'resolution': 0.1},
-          {'minimum_travel_distance': 0.01},
-          {'minimum_travel_heading': 0.001},
-          {'map_update_interval': 0.1}
-        ],
-        package='slam_toolbox',
-        executable='async_slam_toolbox_node',
-        name='slam_toolbox',
-        output='screen'),
-    ])
+      return LaunchDescription([
+          IncludeLaunchDescription(
+          PythonLaunchDescriptionSource([os.path.join(
+              get_package_share_directory('crazyflie'), 'launch'),
+              '/launch.py']),
+          launch_arguments={
+              'backend': 'cflib',
+              'gui': 'false',
+              'teleop': 'false',
+              'mocap': 'false',
+              }.items()),
+          Node(
+              package='crazyflie',
+              executable='vel_mux.py',
+              name='vel_mux',
+              output='screen',
+              parameters=[{'hover_height': 0.3},
+                          {'incoming_twist_topic': '/cmd_vel'},
+                          {'robot_prefix': '/cf231'}]
+          ),
+          IncludeLaunchDescription(
+              PythonLaunchDescriptionSource(
+                  os.path.join(get_package_share_directory('slam_toolbox'), 'launch/online_async_launch.py')),
+              launch_arguments={
+                  'slam_params_file': os.path.join(get_package_share_directory('crazyflie_examples'), 'config/slam_params.yaml'),
+                  'use_sim_time': 'False',
+              }.items()
+          ),
+      ])
 
+      
 Here is an explanation of the nodes:
 
 * The first node enables the crazyflie server, namely the python version (cflib) as that currently has logging enabled. This takes the crazyflies.yaml file you just edited and uses those values to set up the crazyflie. You might need to change some topic strings based on your Crazyflie name (`/cf231` to something else)
 * The second node is a velocity command handler, which takes an incoming twist message, makes the Crazyflie take off to a fixed height and enables velocity control of external packages (you'll see why soon enough).
-* The third node is the slam toolbox node. You noted that we gave it some different parameters, where we upped the speed of the map generation, decreased the resolution and turn of ray matching as mentioned in the warning above.
+* The third node is the slam toolbox node. You noted that we gave it some different parameters, which can be found in the crazyflie_examples/config/slam_params.yaml. Here we upped the speed of the map generation, decreased the resolution and turn of ray matching as mentioned in the warning above.
 
 Turn on your crazyflie and put it in the middle of the room you would like to map. Make sure to mark the starting position for later.
 
@@ -322,7 +330,7 @@ Preperation
 ~~~~~~~~~~~
 .. note::
 
-  This tutorial assume you have taken the above mapping tutorial first.
+  This tutorial assume you have done the above mapping tutorial first, along with the yaml file changes
 
 Find the all the files that were created by the RVIZ2 slam toolbox plugin, which should be in format \*.yaml, \*.posegraph, \*.data and \*.pgm, and copy them in the /crazyflie_examples/data/ folder.
 Either you can replace those that are there already ('map.\*'), or call them different and just change the name in the launch file, which will be explain now.
@@ -340,65 +348,62 @@ Let's take a look at the launch file (multiranger_nav3_launch.py):
 
 .. code-block:: python
 
-    return LaunchDescription([
-        Node(
-            package='crazyflie',
-            executable='crazyflie_server.py',
-            name='crazyflie_server',
-            output='screen',
-            parameters=[{"world_tf_name": 'map'},
-                        server_params],
-        ),
-        Node(
-            package='crazyflie',
-            executable='vel_mux.py',
-            name='vel_mux',
-            output='screen',
-            parameters=[{"hover_height": 0.3},
-                        {"incoming_twist_topic": "/cmd_vel"},
-                        {"robot_prefix": "/cf231"}]
-        ),
-        Node(
-        parameters=[
-          {'odom_frame': 'cf231/odom'},
-          {'map_frame': 'map'},
-          {'base_frame': 'cf231'},
-          {'scan_topic': '/cf231/scan'},
-          {'use_scan_matching': False},
-          {'max_laser_range': 3.5},
-          {'resolution': 0.1},
-          {'minimum_travel_distance': 0.01},
-          {'minimum_travel_heading': 0.001},
-          {'map_update_interval': 0.1},
-          {'mode': 'localization'},
-          {"map_file_name": cf_examples_dir + "/data/" + map_name},
-          {"map_start_pose": [0.0, 0.0, 0.0]} ],
-        package='slam_toolbox',
-        executable='async_slam_toolbox_node',
-        name='slam_toolbox',
-        output='screen'),
-        IncludeLaunchDescription(
-            PythonLaunchDescriptionSource(
-                os.path.join(bringup_launch_dir, 'bringup_launch.py')),
-            launch_arguments={'slam': 'False',
-                            'use_sim_time': 'false',
-                            'map': cf_examples_dir + "/data/" + map_name + ".yaml",
-                            'params_file': os.path.join(cf_examples_dir, 'nav2_params.yaml'),
-                            'autostart': 'true',
-                            'use_composition': 'true',
-                            'transform_publish_period': '0.02'
-                            }.items()
-        ),
-        IncludeLaunchDescription(
-            PythonLaunchDescriptionSource(
-                os.path.join(bringup_launch_dir, 'rviz_launch.py')),
-            launch_arguments={
-                            'rviz_config': os.path.join(bringup_dir, 'rviz', 'nav2_default_view.rviz')}.items())
-    ])
+      map_name = 'map'
+
+      return LaunchDescription([
+
+          IncludeLaunchDescription(
+              PythonLaunchDescriptionSource([os.path.join(
+                  get_package_share_directory('crazyflie'), 'launch'),
+                  '/launch.py']),
+              launch_arguments={
+                  'backend': 'cflib',
+                  'gui': 'false',
+                  'teleop': 'false',
+                  'mocap': 'false',
+                  }.items()),
+          Node(
+              package='crazyflie',
+              executable='vel_mux.py',
+              name='vel_mux',
+              output='screen',
+              parameters=[{'hover_height': 0.3},
+                          {'incoming_twist_topic': '/cmd_vel'},
+                          {'robot_prefix': '/cf231'}]
+          ),
+          IncludeLaunchDescription(
+              PythonLaunchDescriptionSource(
+                  os.path.join(get_package_share_directory('slam_toolbox'), 'launch/online_async_launch.py')),
+              launch_arguments={
+                  'slam_params_file': os.path.join(get_package_share_directory('crazyflie_examples'), 'config/slam_params.yaml'),
+                  'use_sim_time': 'False',
+              }.items()
+          ),
+          IncludeLaunchDescription(
+              PythonLaunchDescriptionSource(
+                  os.path.join(get_package_share_directory('nav2_bringup'), 'launch/bringup_launch.py')),
+              launch_arguments={
+                  'slam': 'False',
+                  'use_sim_time': 'False',
+                  'map': get_package_share_directory('crazyflie_examples') + '/data/' + map_name + '.yaml',
+                  'params_file': os.path.join(get_package_share_directory('crazyflie_examples'), 'config/nav2_params.yaml'),
+                  'autostart': 'True',
+                  'use_composition': 'True',
+                  'transform_publish_period': '0.02'
+              }.items()
+          ),
+          IncludeLaunchDescription(
+              PythonLaunchDescriptionSource(
+                  os.path.join(bringup_launch_dir, 'rviz_launch.py')),
+              launch_arguments={
+                  'rviz_config': os.path.join(
+                      get_package_share_directory('nav2_bringup'), 'rviz', 'nav2_default_view.rviz')}.items())
+      ])
+
 
 The crazyflie_server, vel_mux and slam toolbox nodes are obviously the same as the mapping launch file example, with some key differences:
 
-* crazyflie_server: An extra parameter called 'world_tf_name' which changes the name of the 'world' transform to 'map'. This is to ensure compatibilty with the NAV2 bringup node later.
+* crazyflie_server: The reference frame is set to 'map'. This is to ensure compatibilty with the NAV2 bringup node later.
 * slam toolbox:  'map_frame' set to 'map, 'mode' set to localization with a 'map_file_name' and 'map_start_pose' (now remember marking the start position of the mapping tutorial?)
 
 The next two nodes are new, which are included IncludeLaunchDescription to include other launch files (since these are pretty big).
