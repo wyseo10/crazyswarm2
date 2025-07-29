@@ -2,14 +2,44 @@
 robots:
   cf1:
     enabled: true
-    uri: radio://0/10/2M/E7E7E7E701
-    initial_position: [0.0, 0.0, 0.0]
+    uri: radio://0/90/2M/E7E7E7E701
+    initial_position: [-3.0, 1.0, 0.0]
     type: cf21  # see robot_types
   cf2:
     enabled: true
     uri: radio://0/20/2M/E7E7E7E702
-    initial_position: [0.0, 1.0, 0.0]
+    initial_position: [-3.0, 0.0, 0.0]
     type: cf21  # see robot_types
+  cf3:
+    enabled: true
+    uri: radio://0/30/2M/E7E7E7E703
+    initial_position: [-3.0, -1.0, 0.0]
+    type: cf21  # see robot_types
+  cf4:
+    enabled: true
+    uri: radio://0/40/2M/E7E7E7E704
+    initial_position: [-3.0, -2.0, 0.0]
+    type: cf21  # see robot_types
+  cf5:
+    enabled: true
+    uri: radio://0/50/2M/E7E7E7E705
+    initial_position: [3.0, 1.0, 0.0]
+    type: cf21  # see robot_types
+  cf6:
+    enabled: true
+    uri: radio://0/60/2M/E7E7E7E706
+    initial_position: [3.0, 0.0, 0.0]
+    type: cf21  # see robot_types
+  cf7:
+    enabled: true
+    uri: radio://0/70/2M/E7E7E7E707
+    initial_position: [3.0, -1.0, 0.0]
+    type: cf21  # see robot_types
+  cf8:
+    enabled: true
+    uri: radio://0/80/2M/E7E7E7E708
+    initial_position: [3.0, -2.0, 0.0]
+    type: cf21  # see robot_types        
 # Definition of the various robot types
 robot_types:
   cf21:
