@@ -29,6 +29,6 @@ def generate_launch_description():
             output='screen',
             parameters=[{'hover_height': 0.3},
                         {'incoming_twist_topic': '/cmd_vel'},
-                        {'robot_prefix': '/cf6'}]
+                        {'robot_prefix': '/cf4'}]
         ),
     ])

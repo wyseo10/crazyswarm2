@@ -1,0 +1,26 @@
+{
+  "configurations": [
+    {
+      "browse": {
+        "databaseFilename": "${default}",
+        "limitSymbolsToIncludedHeaders": false
+      },
+      "includePath": [
+        "/home/wy/ros2_ws/install/motion_capture_tracking_interfaces/include/**",
+        "/home/wy/ros2_ws/install/crazyflie_interfaces/include/**",
+        "/home/wy/ros2_ws/install/abvc_interfaces/include/**",
+        "/opt/ros/iron/include/**",
+        "/home/wy/ros2_ws/src/abvc/include/**",
+        "/home/wy/ros2_ws/src/assi4_unicycle/include/**",
+        "/home/wy/ros2_ws/src/assi5_artificial_potential_field/include/**",
+        "/usr/include/**"
+      ],
+      "name": "ROS",
+      "intelliSenseMode": "gcc-x64",
+      "compilerPath": "/usr/bin/gcc",
+      "cStandard": "gnu11",
+      "cppStandard": "c++14"
+    }
+  ],
+  "version": 4
+}
