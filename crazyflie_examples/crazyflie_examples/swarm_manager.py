@@ -62,7 +62,7 @@ class SwarmManager():
         pixel_y = [120 * self.dot(pos, DOWN_DIR) for pos in positions]
         xmin, ymin = min(pixel_x), min(pixel_y)
         xmax, ymax = max(pixel_x), max(pixel_y)
-
+        
         # construct the main window
         top = Tkinter.Tk()
         top.title('Swarm Manager')
@@ -176,7 +176,7 @@ class SwarmManager():
         for box in self.widgets.values():
             box.checked.set(True)
         self.save()
-
+        
 
     def takeoff(self):
         cfs = self.selected_cfs()

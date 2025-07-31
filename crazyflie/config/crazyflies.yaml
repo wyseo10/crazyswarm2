@@ -2,17 +2,47 @@
 robots:
   cf1:
     enabled: true
-    uri: radio://0/10/2M/E7E7E7E701
-    initial_position: [0.0, 0.0, 0.0]
+    uri: radio://*/20/2M/E7E7E7E7E1
+    initial_position: [1.5, 1.5, 0.0]
     type: cf21  # see robot_types
-    firmware_params:
-      ring:
-        effect: 7 # 6: double spinner, 7: solid color, 16: packetRate
-        solidBlue: 0 # if set to solid color
-        solidGreen: 0 # if set to solid color
-        solidRed: 255 # if set to solid color
-        headlightEnable: 0    
-# Definition of the various robot types
+    firmware_logging:
+      enabled: true
+  cf2:
+    enabled: true
+    uri: radio://*/10/2M/E7E7E7E7E2
+    initial_position: [-1.5, 1.5, 0.0]
+    type: cf21  # see robot_types
+    firmware_logging:
+      enabled: true
+  cf3:
+    enabled: true
+    uri: radio://*/40/2M/E7E7E7E7E3
+    initial_position: [-1.5, -1.5, 0.0]
+    type: cf21  # see robot_types
+    firmware_logging:
+      enabled: true
+  cf4:
+    enabled: true
+    uri: radio://*/80/2M/E7E7E7E7E4
+    initial_position: [1.0, -1.0, 0.0]
+    type: cf21  # see robot_types
+    firmware_logging:
+      enabled: true
+  cf5:
+    enabled: false
+    uri: radio://*/40/2M/E7E7E7E7E5
+    initial_position: [1.0, 1.0, 0.0]
+    type: cf21  # see robot_types
+    firmware_logging:
+      enabled: true
+  cf6:
+    enabled: false
+    uri: radio://*/40/2M/E7E7E7E7E6
+    initial_position: [0.0, 1.0, 0.0]
+    type: cf21  # see robot_types
+    firmware_logging:
+      enabled: true
+
 robot_types:
   cf21:
     motion_capture:
@@ -78,7 +108,7 @@ all:
       enHighLevel: 1
     stabilizer:
       estimator: 2 # 1: complementary, 2: kalman
-      controller: 2 # 1: PID, 2: mellinger
+      controller: 1 # 1: PID, 2: mellinger
     # ring:
     #   effect: 16 # 6: double spinner, 7: solid color, 16: packetRate
     #   solidBlue: 255 # if set to solid color
@@ -88,8 +118,8 @@ all:
     locSrv:
       extPosStdDev: 1e-3
       extQuatStdDev: 0.5e-1
-    # kalman:
-    #   resetEstimation: 1
+    kalman:
+      resetEstimation: 1
   broadcasts:
     num_repeats: 15 # number of times broadcast commands are repeated
     delay_between_repeats_ms: 1 # delay in milliseconds between individual repeats

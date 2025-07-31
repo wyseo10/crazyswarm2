@@ -1,15 +1,15 @@
 /motion_capture_tracking:
   ros__parameters:
     type: "optitrack"
-    hostname: "192.168.1.237"
+    hostname: "192.168.10.115"
 
-    mode: "libobjecttracker" # one of motionCapture,libRigidBodyTracker
+    #mode: "libobjecttracker" # one of motionCapture,libRigidBodyTracker
 
     topics:
       poses:
         qos:
           mode: "sensor"
-          deadline: 100.0 # Hz
+          deadline: 200.0 # Hz
 
     marker_configurations:
       default: # for standard Crazyflie

@@ -109,12 +109,15 @@ class Crazyflie:
             paramTypeDict: dictionary of the parameter types.
 
         """
-        namespace = '/' + cfname 
+        namespace = ''
         prefix = namespace + '/' + cfname
         self.namespace = namespace
         self.prefix = prefix
         self.node = node
 
+
+        print(namespace)
+		
         # self.tf = tf
 
         # rospy.wait_for_service(prefix + '/set_group_mask')
@@ -785,7 +788,7 @@ class CrazyflieServer(rclpy.node.Node):
         #             cfnames.append(cfname)
 
         # Query all parameters
-        listParamsService = self.create_client(ListParameters, '/cf1/crazyflie_server/list_parameters')
+        listParamsService = self.create_client(ListParameters, '/crazyflie_server/list_parameters')
         listParamsService.wait_for_service()
         req = ListParameters.Request()
         req.depth = ListParameters.Request.DEPTH_RECURSIVE
@@ -804,7 +807,7 @@ class CrazyflieServer(rclpy.node.Node):
 
         # Find the types for the parameters and store them
         describeParametersService = self.create_client(
-            DescribeParameters, '/cf1/crazyflie_server/describe_parameters')
+            DescribeParameters, '/crazyflie_server/describe_parameters')
         describeParametersService.wait_for_service()
         req = DescribeParameters.Request()
         req.names = params
