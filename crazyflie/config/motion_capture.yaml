@@ -3,7 +3,7 @@
     # one of "optitrack", "optitrack_closed_source", "vicon", "qualisys", "nokov", "vrpn", "motionanalysis"
     type: "optitrack"
     # Specify the hostname or IP of the computer running the motion capture software
-    hostname: "141.23.110.143"
+    hostname: "141.23.110.143" #TODO
 
     topics:
       frame_id: "mocap"

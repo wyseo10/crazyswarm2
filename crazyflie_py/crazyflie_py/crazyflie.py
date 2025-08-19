@@ -14,13 +14,14 @@ from collections import defaultdict
 # from .visualizer import visNull
 
 
-from crazyflie_interfaces.msg import FullState, Position, Status, TrajectoryPolynomialPiece
+from crazyflie_interfaces.msg import FullState, Position, TrajectoryPolynomialPiece
 from crazyflie_interfaces.srv import Arm, GoTo, Land, \
     NotifySetpointsStop, StartTrajectory, Takeoff, UploadTrajectory
 from geometry_msgs.msg import Point
 import numpy as np
 from rcl_interfaces.msg import Parameter, ParameterType, ParameterValue
 from rcl_interfaces.srv import DescribeParameters, GetParameters, ListParameters, SetParameters
+from abvc_interfaces.srv import StartPlanning, StopPlanning
 
 import rclpy
 import rclpy.node
@@ -108,9 +109,15 @@ class Crazyflie:
             paramTypeDict: dictionary of the parameter types.
 
         """
-        prefix = '/' + cfname
+
+        #name_todo
+        #namespace = ''
+        prefix = """namespace + """'/' + cfname
+        #self.namespace = namespace
         self.prefix = prefix
         self.node = node
+
+        #print(namespace)
 
         # self.tf = tf
 
@@ -137,15 +144,15 @@ class Crazyflie:
             Arm, prefix + '/arm')
         # self.armService.wait_for_service()
         self.setParamsService = node.create_client(
-            SetParameters, '/crazyflie_server/set_parameters')
+            SetParameters, '''namespace + ''' '/crazyflie_server/set_parameters') #name_todo
         self.setParamsService.wait_for_service()
-        self.statusSubscriber = node.create_subscription(
-            Status, f'{self.prefix}/status', self.status_topic_callback, 10)
-        self.status = {}
+        # self.statusSubscriber = node.create_subscription(
+        #    Status, f'{self.prefix}/status', self.status_topic_callback, 10)
+        # self.status = {}
 
         # Query some settings
         self.getParamsService = node.create_client(
-            GetParameters, '/crazyflie_server/get_parameters')
+            GetParameters, '''namespace + ''' '/crazyflie_server/get_parameters') #name_todo
         self.getParamsService.wait_for_service()
         req = GetParameters.Request()
         req.names = ['robots.{}.initial_position'.format(cfname), 'robots.{}.uri'.format(cfname)]
@@ -187,41 +194,41 @@ class Crazyflie:
 
         # self.cmdVelocityWorldPublisher = rospy.Publisher(
         #   prefix + '/cmd_velocity_world', VelocityWorld, queue_size=1)
-        # self.cmdVelocityWorldMsg = VelocityWorld()
+        # self.cmdVelocityWorldMsg = Velocity World()
         # self.cmdVelocityWorldMsg.header.seq = 0
         # self.cmdVelocityWorldMsg.header.frame_id = '/world'
 
-    def setGroupMask(self, groupMask):
-        """
-        Set the group mask bits for this robot.
+    # def setGroupMask(self, groupMask):
+    #     """
+    #     Set the group mask bits for this robot.
 
-        The purpose of groups is to make it possible to trigger an action
-        (for example, executing a previously-uploaded trajectory) on a subset
-        of all robots without needing to send more than one radio packet.
-        This is important to achieve tight, synchronized 'choreography'.
+    #     The purpose of groups is to make it possible to trigger an action
+    #     (for example, executing a previously-uploaded trajectory) on a subset
+    #     of all robots without needing to send more than one radio packet.
+    #     This is important to achieve tight, synchronized 'choreography'.
 
-        Up to 8 groups may exist, corresponding to bits in the groupMask byte.
-        When a broadcast command is triggered on the :obj:`CrazyflieServer` object
-        with a groupMask argument, the command only affects those robots whose
-        groupMask has a nonzero bitwise-AND with the command's groupMask.
-        A command with a groupMask of zero applies to all robots regardless of
-        group membership.
+    #     Up to 8 groups may exist, corresponding to bits in the groupMask byte.
+    #     When a broadcast command is triggered on the :obj:`CrazyflieServer` object
+    #     with a groupMask argument, the command only affects those robots whose
+    #     groupMask has a nonzero bitwise-AND with the command's groupMask.
+    #     A command with a groupMask of zero applies to all robots regardless of
+    #     group membership.
 
-        Some individual robot (not broadcast) commands also support groupMask,
-        but it is not especially useful in that case.
+    #     Some individual robot (not broadcast) commands also support groupMask,
+    #     but it is not especially useful in that case.
 
-        Args:
-        ----
-            groupMask (int): An 8-bit integer representing this robot's
-                membership status in each of the <= 8 possible groups.
+    #     Args:
+    #     ----
+    #         groupMask (int): An 8-bit integer representing this robot's
+    #             membership status in each of the <= 8 possible groups.
 
-        """
-        # Note that this requires a recent firmware; older firmware versions
-        #      do not have such a parameter.
-        try:
-            self.setParam('hlCommander.groupmask', groupMask)
-        except KeyError:
-            self.node.get_logger().error('setGroupMask: Your firmware is too old - Please update.')
+    #     """
+    #     # Note that this requires a recent firmware; older firmware versions
+    #     #      do not have such a parameter.
+    #     try:
+    #         self.setParam('hlCommander.groupmask', groupMask)
+    #     except KeyError:
+    #         self.node.get_logger().error('setGroupMask: Your firmware is too old - Please update.')
 
     # def enableCollisionAvoidance(self, others, ellipsoidRadii):
     #     """Enables onboard collision avoidance.
@@ -373,6 +380,7 @@ class Crazyflie:
         req.yaw = float(yaw)
         req.duration = rclpy.duration.Duration(seconds=duration).to_msg()
         self.goToService.call_async(req)
+        self.uploadTrajectoryService.call_async(req)
 
     def uploadTrajectory(self, trajectoryId, pieceOffset, trajectory):
         """
@@ -503,45 +511,45 @@ class Crazyflie:
     #       '/world', '/cf' + str(self.id), rospy.Time(0))
     #     return np.array(position)
 
-    def getParam(self, name):
-        """
-        Get the current value of the onboard named parameter.
+    # def getParam(self, name):
+    #     """
+    #     Get the current value of the onboard named parameter.
 
-        Parameters are named values of various primitive C types that control
-        the firmware's behavior. For more information, see
-        https://www.bitcraze.io/documentation/repository/crazyflie-firmware/master/userguides/logparam/.
+    #     Parameters are named values of various primitive C types that control
+    #     the firmware's behavior. For more information, see
+    #     https://www.bitcraze.io/documentation/repository/crazyflie-firmware/master/userguides/logparam/.
 
-        Parameters are read at system startup over the radio and cached.
-        The ROS launch file can also be used to set parameter values at startup.
-        Subsequent calls to :meth:`setParam()` will update the cached value.
-        However, if the parameter changes for any other reason, the cached value
-        might become stale. This situation is not common.
+    #     Parameters are read at system startup over the radio and cached.
+    #     The ROS launch file can also be used to set parameter values at startup.
+    #     Subsequent calls to :meth:`setParam()` will update the cached value.
+    #     However, if the parameter changes for any other reason, the cached value
+    #     might become stale. This situation is not common.
 
-        Args:
-            name (str): The parameter's name.
+    #     Args:
+    #         name (str): The parameter's name.
 
-        Returns:
-            value (Any): The parameter's value.
+    #     Returns:
+    #         value (Any): The parameter's value.
 
-        """
-        try:
-            param_name = self.prefix[1:] + '.params.' + name
-            req = GetParameters.Request()
-            req.names = [param_name]
-            future = self.getParamsService.call_async(req)
-            rclpy.spin_until_future_complete(self.node, future)
-            param_type = self.paramTypeDict[name]
-            if param_type == ParameterType.PARAMETER_INTEGER:
-                param_value = future.result().values[0].integer_value
-            elif param_type == ParameterType.PARAMETER_DOUBLE:
-                param_value = future.result().values[0].double_value
-            return param_value
-        except KeyError as e:
-            self.node.get_logger().warn(f'(crazyflie.py)getParam : keyError raised {e}')
-            return float('nan')
-        except Exception as e:
-            self.node.get_logger().warn(f'(crazyflie.py)getParam : exception raised {e}')
-            return float('nan')
+    #     """
+    #     try:
+    #         param_name = self.prefix[1:] + '.params.' + name
+    #         req = GetParameters.Request()
+    #         req.names = [param_name]
+    #         future = self.getParamsService.call_async(req)
+    #         rclpy.spin_until_future_complete(self.node, future)
+    #         param_type = self.paramTypeDict[name]
+    #         if param_type == ParameterType.PARAMETER_INTEGER:
+    #             param_value = future.result().values[0].integer_value
+    #         elif param_type == ParameterType.PARAMETER_DOUBLE:
+    #             param_value = future.result().values[0].double_value
+    #         return param_value
+    #     except KeyError as e:
+    #         self.node.get_logger().warn(f'(crazyflie.py)getParam : keyError raised {e}')
+    #         return float('nan')
+    #     except Exception as e:
+    #         self.node.get_logger().warn(f'(crazyflie.py)getParam : exception raised {e}')
+    #         return float('nan')
 
     def setParam(self, name, value):
         """
@@ -555,7 +563,7 @@ class Crazyflie:
 
         """
         try:
-            param_name = self.prefix[1:] + '.params.' + name
+            param_name = self.prefix + '.params.' + name #todo
             param_type = self.paramTypeDict[name]
             if param_type == ParameterType.PARAMETER_INTEGER:
                 param_value = ParameterValue(type=param_type, integer_value=int(value))
@@ -722,58 +730,92 @@ class Crazyflie:
         self.cmdPositionMsg.yaw = yaw
         self.cmdPositionPublisher.publish(self.cmdPositionMsg)
 
-    # def setLEDColor(self, r, g, b):
-    #     """Sets the color of the LED ring deck.
+    def setLEDColor(self, r, g, b):
+        """Sets the color of the LED ring deck.
 
-    #     While most params (such as PID gains) only need to be set once, it is
-    #     common to change the LED ring color many times during a flight, e.g.
-    #     as some kind of status indicator. This method makes it convenient.
+        While most params (such as PID gains) only need to be set once, it is
+        common to change the LED ring color many times during a flight, e.g.
+        as some kind of status indicator. This method makes it convenient.
 
-    #     PRECONDITION: The param 'ring/effect' must be set to 7 (solid color)
-    #     for this command to have any effect. The default mode uses the ring
-    #     color to indicate radio connection quality.
+        PRECONDITION: The param 'ring/effect' must be set to 7 (solid color)
+        for this command to have any effect. The default mode uses the ring
+        color to indicate radio connection quality.
 
-    #     This is a blocking command, so it may cause stability problems for
-    #     large swarms and/or high-frequency changes.
+        This is a blocking command, so it may cause stability problems for
+        large swarms and/or high-frequency changes.
 
-    #     Args:
-    #         r (float): Red component of color, in range [0, 1].
-    #         g (float): Green component of color, in range [0, 1].
-    #         b (float): Blue component of color, in range [0, 1].
+        Args:
+            r (float): Red component of color, in range [0, 1].
+            g (float): Green component of color, in range [0, 1].
+            b (float): Blue component of color, in range [0, 1].
+        """
+        self.setParam('ring/solidRed', int(r * 255))
+        self.setParam('ring/solidGreen', int(g * 255))
+        self.setParam('ring/solidBlue', int(b * 255))
+
+    # def status_topic_callback(self, msg):
     #     """
-    #     self.setParam('ring/solidRed', int(r * 255))
-    #     self.setParam('ring/solidGreen', int(g * 255))
-    #     self.setParam('ring/solidBlue', int(b * 255))
+    #     Call back for topic /cfXXX/status.
 
-    def status_topic_callback(self, msg):
-        """
-        Call back for topic /cfXXX/status.
+    #     Update the status attribute every time a crazyflie_interfaces/msg/Status
+    #     message is published on the topic /cfXXX/status
+    #     """
+    #     self.status = {'id': msg.header.frame_id,
+    #                    'timestamp_sec': msg.header.stamp.sec,
+    #                    'timestamp_nsec': msg.header.stamp.nanosec,
+    #                    'supervisor': msg.supervisor_info,
+    #                    'battery': msg.battery_voltage,
+    #                    'pm_state': msg.pm_state,
+    #                    'rssi': msg.rssi,
+    #                    'num_rx_broadcast': msg.num_rx_broadcast,
+    #                    'num_tx_broadcast': msg.num_tx_broadcast,
+    #                    'num_rx_unicast': msg.num_rx_unicast,
+    #                    'num_tx_unicast': msg.num_tx_unicast}
 
-        Update the status attribute every time a crazyflie_interfaces/msg/Status
-        message is published on the topic /cfXXX/status
-        """
-        self.status = {'id': msg.header.frame_id,
-                       'timestamp_sec': msg.header.stamp.sec,
-                       'timestamp_nsec': msg.header.stamp.nanosec,
-                       'supervisor': msg.supervisor_info,
-                       'battery': msg.battery_voltage,
-                       'pm_state': msg.pm_state,
-                       'rssi': msg.rssi,
-                       'num_rx_broadcast': msg.num_rx_broadcast,
-                       'num_tx_broadcast': msg.num_tx_broadcast,
-                       'num_rx_unicast': msg.num_rx_unicast,
-                       'num_tx_unicast': msg.num_tx_unicast}
+    # def get_status(self):
+    #     """
+    #     Return the status attribute.
 
-    def get_status(self):
-        """
-        Return the status attribute.
+    #     Status is a dictionary containing:
+    #     frame id, timestamp, supervisor info, battery voltage, pm state, rssi, nb of received or
+    #     transmitted broadcast or unicast messages. see crazyflie_interfaces/msg/Status for details
+    #     """
+    #     # self.node.get_logger().info(f'Crazyflie.get_status() was called {self.status}')
+    #     return self.status
 
-        Status is a dictionary containing:
-        frame id, timestamp, supervisor info, battery voltage, pm state, rssi, nb of received or
-        transmitted broadcast or unicast messages. see crazyflie_interfaces/msg/Status for details
+    def initializePlanningServices(self):
         """
-        # self.node.get_logger().info(f'Crazyflie.get_status() was called {self.status}')
-        return self.status
+        Initialize services for planning
+        """
+        self.startPlanningService = self.node.create_client(StartPlanning, self.prefix + '/start_planning')
+        self.startPlanningService.wait_for_service()
+        self.stopPlanningService = self.node.create_client(StopPlanning, self.prefix + '/stop_planning')
+        self.stopPlanningService.wait_for_service()
+
+    def goToGoal(self):
+        """
+        Go to the goal point
+        """
+        req = StartPlanning.Request()
+        req.status = 2 #GoToStart
+        req.start_time.stamp = self.node.get_clock().now().to_msg()
+        self.startPlanningService.call_async(req)
+
+    def patrol(self):
+        """
+        Patrol between the start and goal points
+        """
+        req = StartPlanning.Request()
+        req.status = 3 #Patrol
+        req.start_time.stamp = self.node.get_clock().now().to_msg()
+        self.startPlanningService.call_async(req)
+
+    def stopPlanning(self):
+        """
+        Stop planning
+        """
+        req = StopPlanning.Request()
+        self.stopPlanningService.call_async(req)
 
 
 class CrazyflieServer(rclpy.node.Node):
@@ -790,9 +832,9 @@ class CrazyflieServer(rclpy.node.Node):
 
     """
 
-    def __init__(self):
+    def __init__(self,cfnames): #name_todo
         """Initialize the server. Waits for all ROS services before returning."""
-        super().__init__('CrazyflieAPI')
+        super().__init__('CrazyflieAPI') #name_todo
 
         # wait for server to be fully started
         self.emergencyService = self.create_client(Empty, 'all/emergency')
@@ -809,7 +851,7 @@ class CrazyflieServer(rclpy.node.Node):
         self.armService = self.create_client(Arm, 'all/arm')
         # self.armService.wait_for_service()
         self.setParamsService = self.create_client(
-            SetParameters, '/crazyflie_server/set_parameters')
+            SetParameters, '/crazyflie_server/set_parameters') #server_todo
         self.setParamsService.wait_for_service()
 
         self.cmdFullStatePublisher = self.create_publisher(
@@ -817,16 +859,16 @@ class CrazyflieServer(rclpy.node.Node):
         self.cmdFullStateMsg = FullState()
         self.cmdFullStateMsg.header.frame_id = '/world'
 
-        cfnames = []
-        for srv_name, srv_types in self.get_service_names_and_types():
-            if 'crazyflie_interfaces/srv/StartTrajectory' in srv_types:
-                # remove '/' and '/start_trajectory'
-                cfname = srv_name[1:-17]
-                if cfname != 'all':
-                    cfnames.append(cfname)
+        # cfnames = []
+        # for srv_name, srv_types in self.get_service_names_and_types():
+        #     if 'crazyflie_interfaces/srv/StartTrajectory' in srv_types:
+        #         # remove '/' and '/start_trajectory'
+        #         cfname = srv_name[1:-17]
+        #         if cfname != 'all':
+        #             cfnames.append(cfname)
 
         # Query all parameters
-        listParamsService = self.create_client(ListParameters, '/crazyflie_server/list_parameters')
+        listParamsService = self.create_client(ListParameters, '/crazyflie_server/list_parameters') 
         listParamsService.wait_for_service()
         req = ListParameters.Request()
         req.depth = ListParameters.Request.DEPTH_RECURSIVE
@@ -1015,20 +1057,29 @@ class CrazyflieServer(rclpy.node.Node):
 
     def setParam(self, name, value):
         """Set parameter via broadcasts. See Crazyflie.setParam for details."""
-        try:
-            param_name = 'all.params.' + name
-            param_type = self.paramTypeDict[name]
-            if param_type == ParameterType.PARAMETER_INTEGER:
-                param_value = ParameterValue(type=param_type, integer_value=int(value))
-            elif param_type == ParameterType.PARAMETER_DOUBLE:
-                param_value = ParameterValue(type=param_type, double_value=float(value))
-            req = SetParameters.Request()
-            req.parameters = [Parameter(name=param_name, value=param_value)]
-            self.setParamsService.call_async(req)
-        except KeyError as e:
-            self.get_logger().warn(f'(crazyflie.py)setParam : keyError raised {e}')
-        except Exception as e:
-            self.get_logger().warn(f'(crazyflie.py)setParam : exception raised {e}')
+        # try:
+        #     param_name = 'all.params.' + name
+        #     param_type = self.paramTypeDict[name]
+        #     if param_type == ParameterType.PARAMETER_INTEGER:
+        #         param_value = ParameterValue(type=param_type, integer_value=int(value))
+        #     elif param_type == ParameterType.PARAMETER_DOUBLE:
+        #         param_value = ParameterValue(type=param_type, double_value=float(value))
+        #     req = SetParameters.Request()
+        #     req.parameters = [Parameter(name=param_name, value=param_value)]
+        #     self.setParamsService.call_async(req)
+        # except KeyError as e:
+        #     self.get_logger().warn(f'(crazyflie.py)setParam : keyError raised {e}')
+        # except Exception as e:
+        #     self.get_logger().warn(f'(crazyflie.py)setParam : exception raised {e}')
+        param_name = 'all.params.' + name
+        param_type = self.paramTypeDict[name]
+        if param_type == ParameterType.PARAMETER_INTEGER:
+            param_value = ParameterValue(type=param_type, value=param_value)
+        elif param_type == ParameterType.PARAMETER_DOUBLE:
+            param_value = ParameterValue(type=param_type, double_value=float(value))
+        req = SetParameters.Request()
+        req.parameters = [Parameter(name=param_name, value=param_value)]
+        self.setParamsService.call_async(req)
 
     def cmdFullState(self, pos, vel, acc, yaw, omega):
         """
@@ -1074,3 +1125,51 @@ class CrazyflieServer(rclpy.node.Node):
         self.cmdFullStateMsg.twist.angular.y = omega[1]
         self.cmdFullStateMsg.twist.angular.z = omega[2]
         self.cmdFullStatePublisher.publish(self.cmdFullStateMsg)
+
+
+    def initializePlanningServices(self):
+        '''
+        Initialize services for planning
+        '''
+        self.startPlanningService = self.create_client(StartPlanning, 'all/start_planning')
+        self.startPlanningService.wait_for_service()
+        self.stopPlanningService = self.create_client(StopPlanning, 'all/stop_planning')
+        self.stopPlanningService.wait_for_service()
+
+
+    def goToGoal(self):
+        '''
+        Go to the goal point
+        '''
+        req = StartPlanning.Request()
+        req.status = 1 #go to goal
+        req.start_time.stamp = self.get_clock().now().to_msg()
+        self.startPlanningService.call_async(req)
+
+
+    def goToStart(self):
+        """
+        Go to the start point
+        """
+        req = StartPlanning.Request()
+        req.status = 2 #go to start
+        req.start_time.stamp = self.get_clock().now().to_msg()
+        self.startPlanningService.call_async(req)
+
+
+    def patrol(self):
+        """
+        Patrol between the start and goal points
+        """
+        req = StartPlanning.Request()
+        req.status = 3 #patrol
+        req.start_time.stamp = self.get_clock().now().to_msg()
+        self.startPlanningService.call_async(req)
+
+
+    def stopPlanning(self):
+        """
+        stop planning
+        """
+        req = StopPlanning.Request()
+        self.stopPlanningService.call_async(req)
