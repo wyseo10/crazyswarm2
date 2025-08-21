@@ -3,7 +3,7 @@ fileversion: 3
 
 robots:
   cf1:
-    enabled: true
+    enabled: false
     uri: radio://*/20/2M/E7E7E7E7E1
     initial_position: [1.5, 1.5, 0.0]
     type: cf21  # see robot_types
