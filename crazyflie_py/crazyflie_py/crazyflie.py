@@ -838,21 +838,21 @@ class CrazyflieServer(rclpy.node.Node):
 
         # wait for server to be fully started
         self.emergencyService = self.create_client(Empty, 'all/emergency')
-        self.emergencyService.wait_for_service()
+        # self.emergencyService.wait_for_service()
 
         self.takeoffService = self.create_client(Takeoff, 'all/takeoff')
-        self.takeoffService.wait_for_service()
+        # self.takeoffService.wait_for_service()
         self.landService = self.create_client(Land, 'all/land')
-        self.landService.wait_for_service()
+        # self.landService.wait_for_service()
         self.goToService = self.create_client(GoTo, 'all/go_to')
-        self.goToService.wait_for_service()
+        # self.goToService.wait_for_service()
         self.startTrajectoryService = self.create_client(StartTrajectory, 'all/start_trajectory')
-        self.startTrajectoryService.wait_for_service()
+        # self.startTrajectoryService.wait_for_service()
         self.armService = self.create_client(Arm, 'all/arm')
         # self.armService.wait_for_service()
         self.setParamsService = self.create_client(
             SetParameters, '/crazyflie_server/set_parameters') #server_todo
-        self.setParamsService.wait_for_service()
+        # self.setParamsService.wait_for_service()
 
         self.cmdFullStatePublisher = self.create_publisher(
             FullState, 'all/cmd_full_state', 1)
@@ -1132,9 +1132,9 @@ class CrazyflieServer(rclpy.node.Node):
         Initialize services for planning
         '''
         self.startPlanningService = self.create_client(StartPlanning, 'all/start_planning')
-        self.startPlanningService.wait_for_service()
+        #self.startPlanningService.wait_for_service()
         self.stopPlanningService = self.create_client(StopPlanning, 'all/stop_planning')
-        self.stopPlanningService.wait_for_service()
+        #self.stopPlanningService.wait_for_service()
 
 
     def goToGoal(self):
@@ -1162,7 +1162,7 @@ class CrazyflieServer(rclpy.node.Node):
         Patrol between the start and goal points
         """
         req = StartPlanning.Request()
-        req.status = 3 #patrol
+        req.status = 3 #PATROL
         req.start_time.stamp = self.get_clock().now().to_msg()
         self.startPlanningService.call_async(req)
 

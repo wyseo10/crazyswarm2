@@ -25,9 +25,10 @@ def parse_yaml(context):
         'server.yaml')
 
     with open(server_yaml, 'r') as ymlfile:
-        server_yaml_content = yaml.safe_load(ymlfile)
+         server_yaml_content = yaml.safe_load(ymlfile)
 
     server_params = [crazyflies] + [server_yaml_content['/crazyflie_server']['ros__parameters']]
+    
     # robot description
     urdf = os.path.join(
         get_package_share_directory('crazyflie'),
@@ -36,8 +37,9 @@ def parse_yaml(context):
     
     with open(urdf, 'r') as f:
         robot_desc = f.read()
-
+    
     server_params[1]['robot_description'] = robot_desc
+
 
     # construct motion_capture_configuration
     motion_capture_yaml = LaunchConfiguration('motion_capture_yaml_file').perform(context)

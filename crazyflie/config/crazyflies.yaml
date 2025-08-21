@@ -2,7 +2,6 @@
 fileversion: 3
 
 robots:
-  robots:
   cf1:
     enabled: true
     uri: radio://*/20/2M/E7E7E7E7E1
@@ -18,14 +17,14 @@ robots:
     firmware_logging:
       enabled: true
   cf3:
-    enabled: true
+    enabled: false
     uri: radio://*/40/2M/E7E7E7E7E3
     initial_position: [-1.5, -1.5, 0.0]
     type: cf21  # see robot_types
     firmware_logging:
       enabled: true
   cf4:
-    enabled: true
+    enabled: false
     uri: radio://*/80/2M/E7E7E7E7E4
     initial_position: [1.0, -1.0, 0.0]
     type: cf21  # see robot_types
@@ -50,7 +49,7 @@ robots:
 robot_types:
   cf21:
     motion_capture:
-      tracking: "librigidbodytracker" # one of "vendor", "librigidbodytracker"
+      tracking: librigidbodytracker   # one of "vendor", "librigidbodytracker"
       # only if enabled; see motion_capture.yaml
       marker: default_single_marker
       dynamics: default
@@ -74,7 +73,7 @@ robot_types:
 
   cf21_mocap_deck:
     motion_capture:
-      tracking: "librigidbodytracker" # one of "vendor", "librigidbodytracker"
+      tracking: librigidbodytracker   # one of "vendor", "librigidbodytracker"
       # only if enabled; see motion_capture.yaml
       marker: mocap_deck
       dynamics: default
@@ -136,7 +135,7 @@ all:
       resetEstimation: 1
   # reference frame for on-board state-estimate of all drones (use robot_types/type_name to set per type, or
   # robots/drone_name to set per drone)
-  reference_frame: "world"
+  reference_frame: world
   broadcasts:
     num_repeats: 15 # number of times broadcast commands are repeated
     delay_between_repeats_ms: 1 # delay in milliseconds between individual repeats
