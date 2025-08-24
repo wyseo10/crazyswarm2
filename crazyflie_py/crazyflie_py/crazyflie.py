@@ -112,8 +112,9 @@ class Crazyflie:
 
         #name_todo
         #namespace = ''
-        prefix = """namespace + """'/' + cfname
+        #prefix = namespace + '/' + cfname
         #self.namespace = namespace
+        prefix = '/' + cfname
         self.prefix = prefix
         self.node = node
 
@@ -144,7 +145,7 @@ class Crazyflie:
             Arm, prefix + '/arm')
         # self.armService.wait_for_service()
         self.setParamsService = node.create_client(
-            SetParameters, '''namespace + ''' '/crazyflie_server/set_parameters') #name_todo
+            SetParameters, '/crazyflie_server/set_parameters') #name_todo
         self.setParamsService.wait_for_service()
         # self.statusSubscriber = node.create_subscription(
         #    Status, f'{self.prefix}/status', self.status_topic_callback, 10)
@@ -152,7 +153,7 @@ class Crazyflie:
 
         # Query some settings
         self.getParamsService = node.create_client(
-            GetParameters, '''namespace + ''' '/crazyflie_server/get_parameters') #name_todo
+            GetParameters, '/crazyflie_server/get_parameters') #name_todo
         self.getParamsService.wait_for_service()
         req = GetParameters.Request()
         req.names = ['robots.{}.initial_position'.format(cfname), 'robots.{}.uri'.format(cfname)]
@@ -166,7 +167,7 @@ class Crazyflie:
                     self.initialPosition = np.array(response.values[0].integer_array_value)
                 elif response.values[0].type == ParameterType.PARAMETER_DOUBLE_ARRAY:
                     self.initialPosition = np.array(response.values[0].double_array_value)
-                else:
+                else:   
                     assert False
 
                 # extract uri
@@ -380,7 +381,6 @@ class Crazyflie:
         req.yaw = float(yaw)
         req.duration = rclpy.duration.Duration(seconds=duration).to_msg()
         self.goToService.call_async(req)
-        self.uploadTrajectoryService.call_async(req)
 
     def uploadTrajectory(self, trajectoryId, pieceOffset, trajectory):
         """
@@ -563,7 +563,7 @@ class Crazyflie:
 
         """
         try:
-            param_name = self.prefix + '.params.' + name #todo
+            param_name = self.prefix[1:] + '.params.' + name
             param_type = self.paramTypeDict[name]
             if param_type == ParameterType.PARAMETER_INTEGER:
                 param_value = ParameterValue(type=param_type, integer_value=int(value))
@@ -1071,15 +1071,20 @@ class CrazyflieServer(rclpy.node.Node):
         #     self.get_logger().warn(f'(crazyflie.py)setParam : keyError raised {e}')
         # except Exception as e:
         #     self.get_logger().warn(f'(crazyflie.py)setParam : exception raised {e}')
-        param_name = 'all.params.' + name
-        param_type = self.paramTypeDict[name]
-        if param_type == ParameterType.PARAMETER_INTEGER:
-            param_value = ParameterValue(type=param_type, value=param_value)
-        elif param_type == ParameterType.PARAMETER_DOUBLE:
-            param_value = ParameterValue(type=param_type, double_value=float(value))
-        req = SetParameters.Request()
-        req.parameters = [Parameter(name=param_name, value=param_value)]
-        self.setParamsService.call_async(req)
+        try:
+            param_name = 'all.params.' + name
+            param_type = self.paramTypeDict[name]
+            if param_type == ParameterType.PARAMETER_INTEGER:
+                param_value = ParameterValue(type=param_type, integer_value=int(value))
+            elif param_type == ParameterType.PARAMETER_DOUBLE:
+                param_value = ParameterValue(type=param_type, double_value=float(value))
+            req = SetParameters.Request()
+            req.parameters = [Parameter(name=param_name, value=param_value)]
+            self.setParamsService.call_async(req)
+        except KeyError as e:
+            self.get_logger().warn(f'(crazyflie.py)setParam : keyError raised {e}')
+        except Exception as e:
+            self.get_logger().warn(f'(crazyflie.py)setParam : exception raised {e}')
 
     def cmdFullState(self, pos, vel, acc, yaw, omega):
         """

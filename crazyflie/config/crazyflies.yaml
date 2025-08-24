@@ -3,14 +3,14 @@ fileversion: 3
 
 robots:
   cf1:
-    enabled: false
+    enabled: true
     uri: radio://*/20/2M/E7E7E7E7E1
-    initial_position: [1.5, 1.5, 0.0]
+    initial_position: [0.0, 0.0, 0.0]
     type: cf21  # see robot_types
     firmware_logging:
       enabled: true
   cf2:
-    enabled: true
+    enabled: false
     uri: radio://*/10/2M/E7E7E7E7E2
     initial_position: [-1.5, 1.5, 0.0]
     type: cf21  # see robot_types

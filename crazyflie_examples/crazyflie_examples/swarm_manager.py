@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 from matplotlib import cm
 import collections
 
-Z = 0.5
+Z = 1.0
 
 class CFWidget(Tkinter.Frame):
     def __init__(self, parent, name, swarm_manager):
