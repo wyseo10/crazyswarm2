@@ -40,7 +40,7 @@ class SwarmManager():
 
         # flags
         self.planning_started = False
-        self.get_key_input = False
+        self.get_key_input = True
 
         # cfg 
         self.configpath = configpath
@@ -103,7 +103,7 @@ class SwarmManager():
         self.mkbutton(scriptButtons, "Kill", self.emergencyStop)
 
         print("Waiting for the planner")
-        self.activatePlanner()
+        self.initializePlanning()
         print("Connected to the planner")
 
         buttons.pack()
@@ -186,6 +186,11 @@ class SwarmManager():
         self.timeHelper.sleep(1.0 + Z)
         print("Take off")
 
+    def initializePlanning(self):
+        cfs = self.selected_cfs()
+        if not self.planning_started:
+            for cf in cfs:
+                cf.initializePlanningServices()
 
     def activatePlanner(self):
         cfs = self.selected_cfs()
@@ -274,11 +279,11 @@ class SwarmManager():
             print("Down")
         elif k == 'q':
             for cf in cfs:
-                cf.goTo(np.array([0, 0, 0]), float(math.pi / 8.0), 0.1, relative=True)
+                cf.goTo(np.array([0, 0, 0.005]), float(math.pi / 8.0), 0.1, relative=True)
             print("Turn left")
         elif k == 'e':
             for cf in cfs:
-                cf.goTo(np.array([0, 0, 0]), float(-math.pi / 8.0), 0.1, relative=True)
+                cf.goTo(np.array([0, 0, 0.005]), float(-math.pi / 8.0), 0.1, relative=True)
             print("Turn right")
         elif k == 'k':
             self.emergencyStop()
