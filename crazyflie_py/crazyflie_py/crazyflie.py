@@ -797,7 +797,16 @@ class Crazyflie:
         Go to the goal point
         """
         req = StartPlanning.Request()
-        req.status = 2 #GoToStart
+        req.status = 1 #GoToGoal
+        req.start_time.stamp = self.node.get_clock().now().to_msg()
+        self.startPlanningService.call_async(req)
+
+    def goToStart(self):
+        """
+        Go to the start point
+        """
+        req = StartPlanning.Request()
+        req.status = 2 #GOTOSTART
         req.start_time.stamp = self.node.get_clock().now().to_msg()
         self.startPlanningService.call_async(req)
 
@@ -1147,7 +1156,7 @@ class CrazyflieServer(rclpy.node.Node):
         Go to the goal point
         '''
         req = StartPlanning.Request()
-        req.status = 1 #go to goal
+        req.status = 1 #GoToGoal
         req.start_time.stamp = self.get_clock().now().to_msg()
         self.startPlanningService.call_async(req)
 
