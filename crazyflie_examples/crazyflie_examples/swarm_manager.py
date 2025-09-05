@@ -40,7 +40,7 @@ class SwarmManager():
 
         # flags
         self.planning_started = False
-        self.get_key_input = True
+        self.accept_key_input = False
 
         # cfg 
         self.configpath = configpath
@@ -81,12 +81,12 @@ class SwarmManager():
             w.checked.set(id in enabled)
             self.widgets[id] = w
 
-        top.bind('<ButtonPress-1>', self.mouseDown)
-        top.bind('<ButtonPress-3>', self.mouseDown)
+        top.bind('<ButtonPress-1>', self.mouse_down)
+        top.bind('<ButtonPress-3>', self.mouse_down)
         top.bind('<B1-Motion>', lambda event: self.drag(event, True))
         top.bind('<B3-Motion>', lambda event: self.drag(event, False))
-        top.bind('<ButtonRelease-1>', self.mouseUp)
-        top.bind('<ButtonRelease-3>', self.mouseUp)
+        top.bind('<ButtonRelease-1>', self.mouse_up)
+        top.bind('<ButtonRelease-3>', self.mouse_up)
         top.focus_set()	
         top.bind('<Key>', self.handleKey)
 
@@ -96,14 +96,15 @@ class SwarmManager():
 
         scriptButtons = Tkinter.Frame(top)
         self.mkbutton(scriptButtons, "Takeoff", self.takeoff)
-        self.mkbutton(scriptButtons, "GoToGoal", self.goToGoal)
+        self.mkbutton(scriptButtons, "GoToGoal", self.go_to_goal)
         self.mkbutton(scriptButtons, "Patrol", self.patrol)
-        self.mkbutton(scriptButtons, "GoToStart", self.goToStart)
+        self.mkbutton(scriptButtons, "GoToStart", self.go_to_start)
         self.mkbutton(scriptButtons, "Land", self.land)
-        self.mkbutton(scriptButtons, "Kill", self.emergencyStop)
+        self.mkbutton(scriptButtons, "Kill", self.emergency_stop)
 
         print("Waiting for the planner")
-        self.initializePlanning()
+        for cf in self.allcfs.crazyflies:
+            cf.initializePlanningServices()
         print("Connected to the planner")
 
         buttons.pack()
@@ -137,12 +138,12 @@ class SwarmManager():
         return min(a, b), max(a, b)
 
 
-    def mouseDown(self, event):
+    def mouse_down(self, event):
         self.drag_start = (event.x_root, event.y_root)
         self.drag_startstate = [cf.checked.get() for cf in self.widgets.values()]
 
 
-    def mouseUp(self, event):
+    def mouse_up(self, event):
         self.save()
 
 
@@ -186,13 +187,8 @@ class SwarmManager():
         self.timeHelper.sleep(1.0 + Z)
         print("Take off")
 
-    def initializePlanning(self):
-        cfs = self.selected_cfs()
-        if not self.planning_started:
-            for cf in cfs:
-                cf.initializePlanningServices()
 
-    def activatePlanner(self):
+    def activate_planner(self):
         cfs = self.selected_cfs()
         if not self.planning_started:
             for cf in cfs:
@@ -200,28 +196,31 @@ class SwarmManager():
             self.planning_started = True
 
 
-    def goToGoal(self):
-        self.activatePlanner()
+    def go_to_goal(self):
+        self.activate_planner()
         cfs = self.selected_cfs()
         for cf in cfs:
             cf.goToGoal()
         print("Go to the goal point")
+        self.accept_key_input = False
 
 
     def patrol(self):
-        self.activatePlanner()
+        self.activate_planner()
         cfs = self.selected_cfs()
         for cf in cfs:
             cf.patrol()
         print("Patrol between the start and goal points")
+        self.accept_key_input = False
 
 
-    def goToStart(self):
-        self.activatePlanner()
+    def go_to_start(self):
+        self.activate_planner()
         cfs = self.selected_cfs()
         for cf in cfs:
             cf.goToStart()
         print("Go to the start point")
+        self.accept_key_input = False
 
 
     def land(self):
@@ -237,7 +236,7 @@ class SwarmManager():
         print("Land")
 
 
-    def emergencyStop(self):
+    def emergency_stop(self):
         self.planning_started = False
         self.allcfs.emergency()
         print("Emergency stop")
@@ -248,11 +247,37 @@ class SwarmManager():
 
 
     def handleKey(self, event):
+        k = event.char
+        
+        if k == 'k':
+            self.emergency_stop()
+        
+        if k == 'l':
+            self.land()
+        
+        if k == 'x':
+            self.accept_key_input = not self.accept_key_input
+            print(f"Key input {'enabled' if self.accept_key_input else 'disabled'}")
+            
+            if self.accept_key_input and self.planning_started:
+                cfs = self.selected_cfs()
+                for cf in cfs:
+                    try:
+                        cf.stopPlanning()
+                        cf.notifySetpointsStop()
+                    except Exception as e:
+                        print(f"Stop planning failed: {e}")
+                self.planning_started = False
+            return
+        
+        if not self.accept_key_input:
+            print('Key input is disabled. Press "x" to enable.')
+            return
+        
         if self.planning_started:
             return
 
         cfs = self.selected_cfs()
-        k = event.char
         if k == 'w':
             for cf in cfs:
                 cf.goTo(np.array([0.2, 0, 0]), 0, 0.05, relative=True)
@@ -285,18 +310,14 @@ class SwarmManager():
             for cf in cfs:
                 cf.goTo(np.array([0, 0, 0.005]), float(-math.pi / 8.0), 0.1, relative=True)
             print("Turn right")
-        elif k == 'k':
-            self.emergencyStop()
         elif k == 't':
             self.takeoff()
-        elif k == 'l':
-            self.land()
         elif k == 'g':
-            self.goToGoal()
+            self.go_to_goal()
         elif k == 'p':
             self.patrol()
         elif k == 'b':
-            self.goToStart()
+            self.go_to_start()
         else:
             print("Invalid key")
 
