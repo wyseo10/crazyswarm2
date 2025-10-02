@@ -5,7 +5,7 @@ Overview
 
 This page will explain the overview of the crazyflie ROS 2 nodes:
 
-.. image:: images/overview_nodes.jpg
+.. image:: images/architecture.png
 
 
 Explanation per package
