@@ -798,7 +798,7 @@ class Crazyflie:
 
         poseMsg = self.poseStamped['pose']
 
-        self.pose = {'position':poseMsg.position,
+        self.pose = {'position': poseMsg.position,
                      'orientation': poseMsg.orientation
         }
 
