@@ -143,7 +143,6 @@ class Crazyflie:
             Status, f'{self.prefix}/status', self.status_topic_callback, 10)
         self.status = {}
 
-        # own code
 
         self.poseStampedSubscriber = node.create_subscription(
             PoseStamped, f'{self.prefix}/pose', self.poseStamped_topic_callback, 10)
