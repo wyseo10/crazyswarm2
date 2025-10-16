@@ -4,100 +4,100 @@ fileversion: 3
 robots:
   cf1:
     enabled: true
-    uri: radio://*/20/2M/E7E7E7E7E1
-    initial_position: [1.0, 1.0, 0.0]
+    uri: radio://*/70/2M/E7E7E7E701
+    initial_position: [3.0, 1.5, 0.0]
     type: cf21  # see robot_types
     firmware_params:
       ring:
-        effect: 7 # 6: double spinner, 7: solid color, 16: packetRate
+        effect: 7 # s6: double spinner, 7: solid color, 16: packetRate
         solidBlue: 0 # if set to solid color
         solidGreen: 0 # if set to solid color
         solidRed: 255 # if set to solid color
         headlightEnable: 0
   cf2:
     enabled: true
-    uri: radio://*/10/2M/E7E7E7E7E2
-    initial_position: [1.0, 0.0, 0.0]
+    uri: radio://*/60/2M/E7E7E7E702
+    initial_position: [3.0, 0.5, 0.0]
+    type: cf21  # see robot_types
+    firmware_params:
+      ring:
+        effect: 7
+        solidBlue: 0
+        solidGreen: 191
+        solidRed: 255
+        headlightEnable: 0
+  cf3:
+    enabled: true
+    uri: radio://*/30/2M/E7E7E7E703
+    initial_position: [3.0, -0.5, 0.0]
     type: cf21  # see robot_types
     firmware_params:
       ring:
         effect: 7
         solidBlue: 0
         solidGreen: 255
-        solidRed: 0
-        headlightEnable: 0
-  cf3:
-    enabled: true
-    uri: radio://*/40/2M/E7E7E7E7E3
-    initial_position: [1.0, -1.0, 0.0]
-    type: cf21  # see robot_types
-    firmware_params:
-      ring:
-        effect: 7
-        solidBlue: 255
-        solidGreen: 0
-        solidRed: 0
+        solidRed: 128
         headlightEnable: 0
   cf4:
     enabled: true
-    uri: radio://*/80/2M/E7E7E7E7E4
-    initial_position: [-1.0, 1.0, 0.0]
+    uri: radio://*/40/2M/E7E7E7E704
+    initial_position: [3.0, -1.5, 0.0]
     type: cf21  # see robot_types
     firmware_params:
       ring:
         effect: 7
-        solidBlue: 255
+        solidBlue: 64
         solidGreen: 255
         solidRed: 0
         headlightEnable: 0
   cf5:
     enabled: true
-    uri: radio://*/40/2M/E7E7E7E7E5
-    initial_position: [-1.0, 0.0, 0.0]
+    uri: radio://*/70/2M/E7E7E7E705
+    initial_position: [-3.0, 1.5, 0.0]
     type: cf21  # see robot_types
     firmware_params:
       ring:
         effect: 7
-        solidBlue: 0
+        solidBlue: 255
         solidGreen: 255
-        solidRed: 255
+        solidRed: 0
         headlightEnable: 0
   cf6:
     enabled: true
-    uri: radio://*/40/2M/E7E7E7E7E6
-    initial_position: [-1.0, -1.0, 0.0]
+    uri: radio://*/60/2M/E7E7E7E706
+    initial_position: [-3.0, 0.5, 0.0]
+    type: cf21  # see robot_types
+    firmware_params:
+      ring:
+        effect: 7
+        solidBlue: 255
+        solidGreen: 64
+        solidRed: 0
+        headlightEnable: 0
+  cf7:
+    enabled: true
+    uri: radio://*/30/2M/E7E7E7E707
+    initial_position: [-3.0, -0.5, 0.0]
     type: cf21  # see robot_types
     firmware_params:
       ring:
         effect: 7
         solidBlue: 255
         solidGreen: 0
+        solidRed: 128
+        headlightEnable: 0
+  cf8:
+    enabled: true
+    uri: radio://*/40/2M/E7E7E7E708
+    initial_position: [-3.0, -1.5, 0.0]
+    type: cf21  # see robot_types
+    firmware_params:
+      ring:
+        effect: 7
+        solidBlue: 191
+        solidGreen: 0
         solidRed: 255
         headlightEnable: 0
-  # cf7:
-  #   enabled: false
-  #   uri: radio://*/40/2M/E7E7E7E7E7
-  #   initial_position: [-1.0, -1.0, 0.0]
-  #   type: cf21  # see robot_types
-  #   firmware_params:
-  #     ring:
-  #       effect: 7 
-  #       solidBlue: 255
-  #       solidGreen: 128
-  #       solidRed: 0
-  #       headlightEnable: 0
-  # cf8:
-  #   enabled: false
-  #   uri: radio://*/40/2M/E7E7E7E7E8
-  #   initial_position: [-1.0, -1.0, 0.0]
-  #   type: cf21  # see robot_types
-  #   firmware_params:
-  #     ring:
-  #       effect: 7 
-  #       solidBlue: 128
-  #       solidGreen: 0
-  #       solidRed: 255
-  #       headlightEnable: 0
 
 # Definition of the various robot types
 robot_types:
