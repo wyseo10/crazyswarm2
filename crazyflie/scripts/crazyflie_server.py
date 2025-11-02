@@ -1162,7 +1162,6 @@ class CrazyflieServer(Node):
         Topic update callback to control the world velocity command
             of the crazyflie
         """
-        self.get_logger().info(f"[{self.cf_dict[uri]}] Velocity World Setpoint: vx:{msg.vel.x}, vy:{msg.vel.y}, vz:{msg.vel.z}, yaw_rate:{msg.yaw_rate}")
         vel = msg.vel
         vx = vel.x
         vy = vel.y
