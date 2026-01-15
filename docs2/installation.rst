@@ -33,7 +33,7 @@ First Installation
 
             .. code-block:: bash
 
-                pip3 install rowan nicegui
+                pip3 install rowan nicegui==1.4.2
 
         .. group-tab:: Source Installation
 
