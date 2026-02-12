@@ -2,10 +2,10 @@
 fileversion: 3
 
 robots:
-  cf6:
-    enabled: false
-    uri: radio://0/40/2M/E7E7E7E706
-    initial_position: [1.0, 0.0, 0.0]
+  cf1:
+    enabled: true
+    uri: radio://0/70/2M/E7E7E7E705
+    initial_position: [1.5, 1.5, 0.0]
     type: cf21  # see robot_types
     # firmware_params:
     #   kalman:
@@ -16,43 +16,18 @@ robots:
     #     topic_name3: 
     #       frequency: 1
     #       vars: ["acc.x", "acc.y"]
-<<<<<<< HEAD
-  cf4:
-    enabled: false
-    uri: radio://0/40/2M/E7E7E7E704
-    initial_position: [0.0, 0.0, 0.0]
-    type: cf21  # see robot_types
-    # firmware_params:
-    #   kalman:
-    #     pNAcc_xy: 1.0 # default 0.5
-    # firmware_logging:
-    #   enabled: true
-    #   custom_topics:
-    #     topic_name3: 
-    #       frequency: 1
-    #       vars: ["acc.x", "acc.y"]  
-  cf7:
-    enabled: true
-    uri: radio://0/80/2M/E7E7E7E707
-    initial_position: [0.0, 1.0, 0.0]
-    type: cf21  # see robot_types
-    # firmware_params:
-    #   kalman:
-    #     pNAcc_xy: 1.0 # default 0.5
-    # firmware_logging:
-    #   enabled: true
-    #   custom_topics:
-    #     topic_name3: 
-    #       frequency: 1
-    #       vars: ["acc.x", "acc.y"]  
-=======
     # reference_frame: "odom_cf231" # use a custom reference frame if no global coordinate system is available
 
->>>>>>> upstream/main
+  cf2:
+    enabled: true
+    uri: radio://0/30/2M/E7E7E7E707
+    initial_position: [-1.5, -1.5, 0.0]
+    type: cf21
+
   cf5:
     enabled: false
-    uri: radio://0/40/2M/E7E7E7E705
-    initial_position: [0.0, -0.5, 0.0]
+    uri: radio://0/80/2M/E7E7E7E705
+    initial_position: [0.0, 0.0, 0.0]
     type: cf21  # see robot_types
     # firmware_params:
     #   kalman:
@@ -68,11 +43,7 @@ robots:
 robot_types:
   cf21:
     motion_capture:
-<<<<<<< HEAD
-      enabled: false
-=======
-      tracking: "librigidbodytracker" # one of "vendor", "librigidbodytracker"
->>>>>>> upstream/main
+      tracking: librigidbodytracker   # one of "vendor", "librigidbodytracker"
       # only if enabled; see motion_capture.yaml
       marker: default_single_marker
       dynamics: default
@@ -96,7 +67,7 @@ robot_types:
 
   cf21_mocap_deck:
     motion_capture:
-      tracking: "librigidbodytracker" # one of "vendor", "librigidbodytracker"
+      tracking: librigidbodytracker   # one of "vendor", "librigidbodytracker"
       # only if enabled; see motion_capture.yaml
       marker: mocap_deck
       dynamics: default
@@ -154,16 +125,11 @@ all:
     locSrv:
       extPosStdDev: 1e-3
       extQuatStdDev: 0.5e-1
-<<<<<<< HEAD
-    kalman:
-      resetEstimation: 1
-=======
     # kalman:
     #   resetEstimation: 1
   # reference frame for on-board state-estimate of all drones (use robot_types/type_name to set per type, or
   # robots/drone_name to set per drone)
-  reference_frame: "world"
->>>>>>> upstream/main
+  reference_frame: world
   broadcasts:
     num_repeats: 15 # number of times broadcast commands are repeated
     delay_between_repeats_ms: 1 # delay in milliseconds between individual repeats

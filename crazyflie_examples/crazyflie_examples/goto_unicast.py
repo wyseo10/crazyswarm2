@@ -6,20 +6,21 @@ import numpy as np
 
 def main():
     Z = 0.5
-
+    l = 2.0
+    
     swarm = Crazyswarm()
     timeHelper = swarm.timeHelper
     allcfs = swarm.allcfs
 
     for cf in allcfs.crazyflies:
-        cf.takeoff(targetHeight=Z, duration=1.0+Z)
+        cf.takeoff(targetHeight=Z, duration=0.5+Z)
     timeHelper.sleep(1.5+Z)
 
     relative_positions = [
         [0, 0, Z],
-        [0.5, 0, Z],
-        [0.5, 0.5, Z],
-        [0.0, 0.5, Z],
+        [l, 0, Z],
+        [l, l, Z],
+        [0.0, l, Z],
         [0.0, 0.0, Z],
     ]
 

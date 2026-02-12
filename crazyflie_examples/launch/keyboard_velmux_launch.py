@@ -15,7 +15,7 @@ def generate_launch_description():
             '/launch.py']),
         launch_arguments={
             'backend': 'cpp',
-            'gui': 'True',
+            'gui': 'false',
             'teleop': 'False',
             'mocap': 'False',
             }.items())
@@ -27,8 +27,8 @@ def generate_launch_description():
             executable='vel_mux.py',
             name='vel_mux',
             output='screen',
-            parameters=[{'hover_height': 0.3},
+            parameters=[{'hover_height': 0.5},
                         {'incoming_twist_topic': '/cmd_vel'},
-                        {'robot_prefix': '/cf4'}]
+                        {'robot_prefix': '/cf05'}]
         ),
     ])
